@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>.admin-page main{background:linear-gradient(180deg,#f6f8fc 0%,#f0f7ff 100%)}.admin-sidebar{background-color:#fff!important}</style>
+</head>
+<body class="admin-page bg-light">
+    <%- include('../../public/header') %>
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row g-0">
+            <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0"><%- include('layouts/menu') %></aside>
+            <section class="col-12 col-md-9 col-lg-10 ps-md-0">
+                <div class="d-flex align-items-center justify-content-between pt-2 pb-3 mb-3 border-bottom">
+                    <h4 class="fw-bold mb-0">Skills</h4>
+                </div>
+                <% if (success_msg && success_msg.length > 0) { %><div class="alert alert-success alert-dismissible fade show"><i class="bi bi-check-circle-fill me-2"></i><%= success_msg %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><% } %>
+                <% if (error_msg && error_msg.length > 0) { %><div class="alert alert-danger alert-dismissible fade show"><i class="bi bi-exclamation-triangle-fill me-2"></i><%= error_msg %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><% } %>
+
+                <div class="row g-4">
+                    <div class="col-12 col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold mb-3">Add New Skill</h6>
+                                <form method="POST" action="/admin/skills/store">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Skill Name</label>
+                                        <input type="text" name="name" class="form-control" placeholder="e.g. React.js" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-circle me-1"></i>Add Skill</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-8">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-0">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr><th class="ps-4">ID</th><th>Name</th><th class="pe-4">Actions</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (!skills.length) { %><tr><td colspan="3" class="text-center text-muted py-4">No skills found.</td></tr><% } %>
+                                        <% skills.forEach(s => { %>
+                                        <tr>
+                                            <td class="ps-4 text-muted small">#<%= s.id %></td>
+                                            <td>
+                                                <% if (editId == s.id) { %>
+                                                    <form method="POST" action="/admin/skills/<%= s.id %>/update" class="d-flex gap-2">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <input type="text" name="name" class="form-control form-control-sm" value="<%= s.name %>" required style="width:200px;">
+                                                        <button type="submit" class="btn btn-sm btn-success py-0 px-2"><i class="bi bi-check"></i></button>
+                                                        <a href="/admin/skills" class="btn btn-sm btn-outline-secondary py-0 px-2"><i class="bi bi-x"></i></a>
+                                                    </form>
+                                                <% } else { %>
+                                                    <span class="fw-semibold"><%= s.name %></span>
+                                                <% } %>
+                                            </td>
+                                            <td class="pe-4">
+                                                <div class="d-flex gap-1">
+                                                    <a href="/admin/skills?edit=<%= s.id %>" class="btn btn-sm btn-outline-primary py-0 px-2"><i class="bi bi-pencil"></i></a>
+                                                    <form method="POST" action="/admin/skills/<%= s.id %>/delete" class="d-inline">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="return confirm('Delete this skill?')"><i class="bi bi-trash"></i></button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

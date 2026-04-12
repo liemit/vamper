@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banners - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .admin-page main{background:linear-gradient(180deg,#f6f8fc 0%,#f0f7ff 100%)}
+        .admin-sidebar{background-color:#fff!important}
+        .banner-preview{width:120px;height:60px;object-fit:cover;border-radius:6px;}
+    </style>
+</head>
+<body class="admin-page bg-light">
+    <%- include('../../public/header') %>
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row g-0">
+            <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0"><%- include('layouts/menu') %></aside>
+            <section class="col-12 col-md-9 col-lg-10 ps-md-0">
+                <div class="d-flex align-items-center justify-content-between pt-2 pb-3 mb-3 border-bottom">
+                    <h4 class="fw-bold mb-0">Banners</h4>
+                </div>
+
+                <% if (success_msg && success_msg.length > 0) { %><div class="alert alert-success alert-dismissible fade show"><i class="bi bi-check-circle-fill me-2"></i><%= success_msg %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><% } %>
+                <% if (error_msg && error_msg.length > 0) { %><div class="alert alert-danger alert-dismissible fade show"><i class="bi bi-exclamation-triangle-fill me-2"></i><%= error_msg %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><% } %>
+
+                <div class="row g-4">
+                    <!-- Add form -->
+                    <div class="col-12 col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold mb-3"><%= editBanner ? 'Edit Banner' : 'Add New Banner' %></h6>
+                                <form method="POST" action="<%= editBanner ? '/admin/banners/'+editBanner.id+'/update?_csrf='+csrfToken : '/admin/banners/store?_csrf='+csrfToken %>" enctype="multipart/form-data">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Title</label>
+                                        <input type="text" name="title" class="form-control" value="<%= editBanner ? editBanner.title : '' %>" required>
+                                    </div>
+                                    <!-- Banner type selector -->
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Banner Type</label>
+                                        <div class="btn-group w-100" role="group">
+                                            <input type="radio" class="btn-check" name="banner_type" id="typeImage" value="image" autocomplete="off"
+                                                <%= (!editBanner || !editBanner.ad_code) ? 'checked' : '' %>>
+                                            <label class="btn btn-outline-primary btn-sm" for="typeImage"><i class="bi bi-image me-1"></i>Image</label>
+                                            <input type="radio" class="btn-check" name="banner_type" id="typeAdCode" value="adcode" autocomplete="off"
+                                                <%= (editBanner && editBanner.ad_code) ? 'checked' : '' %>>
+                                            <label class="btn btn-outline-warning btn-sm" for="typeAdCode"><i class="bi bi-code-slash me-1"></i>Ad Code (Adterra)</label>
+                                        </div>
+                                    </div>
+                                    <!-- Image section -->
+                                    <div id="sectionImage" class="mb-3">
+                                        <label class="form-label small fw-semibold">Image</label>
+                                        <input type="file" name="image" class="form-control" accept="image/*">
+                                        <% if (editBanner && editBanner.image_url) { %>
+                                            <img src="<%= editBanner.image_url %>" class="mt-2 banner-preview">
+                                            <div class="form-text">Leave empty to keep current image.</div>
+                                        <% } %>
+                                    </div>
+                                    <!-- Ad Code section -->
+                                    <div id="sectionAdCode" class="mb-3" style="display:none">
+                                        <label class="form-label small fw-semibold">Adterra Ad Code</label>
+                                        <textarea name="ad_code" class="form-control font-monospace" rows="5"
+                                            placeholder="Paste your Adterra script/iframe code here..."><%= editBanner && editBanner.ad_code ? editBanner.ad_code : '' %></textarea>
+                                        <div class="form-text text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Only paste trusted ad code from Adterra.</div>
+                                    </div>
+                                    <div id="sectionLinkUrl" class="mb-3">
+                                        <label class="form-label small fw-semibold">Link URL (optional)</label>
+                                        <input type="text" name="link_url" class="form-control" placeholder="https://..." value="<%= editBanner ? (editBanner.link_url || '') : '' %>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Position</label>
+                                        <select name="position" class="form-select">
+                                            <% ['home_top','home_middle','sidebar','job_detail','footer'].forEach(p => { %>
+                                                <option value="<%= p %>" <%= editBanner && editBanner.position === p ? 'selected' : '' %>><%= p.replace('_',' ') %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="<%= editBanner ? editBanner.sort_order : 0 %>" min="0">
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" name="is_active" class="form-check-input" id="isActive" value="1" <%= (!editBanner || editBanner.is_active) ? 'checked' : '' %>>
+                                        <label class="form-check-label small" for="isActive">Active</label>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-save me-1"></i><%= editBanner ? 'Update' : 'Add Banner' %></button>
+                                        <% if (editBanner) { %><a href="/admin/banners" class="btn btn-outline-secondary">Cancel</a><% } %>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- List -->
+                    <div class="col-12 col-lg-8">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-0">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Preview</th>
+                                            <th>Title</th>
+                                            <th>Position</th>
+                                            <th>Order</th>
+                                            <th>Status</th>
+                                            <th class="pe-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (!banners.length) { %><tr><td colspan="6" class="text-center text-muted py-4">No banners yet.</td></tr><% } %>
+                                        <% banners.forEach(b => { %>
+                                        <tr>
+                                            <td class="ps-4">
+                                                <% if (b.ad_code) { %>
+                                                    <span class="badge bg-warning text-dark"><i class="bi bi-code-slash me-1"></i>Ad Code</span>
+                                                <% } else { %>
+                                                    <img src="<%= b.image_url %>" class="banner-preview" alt="<%= b.title %>" onerror="this.style.display='none'">
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold small"><%= b.title %></div>
+                                                <% if (b.link_url) { %><div class="text-muted" style="font-size:0.72rem;" class="text-truncate"><%= b.link_url %></div><% } %>
+                                            </td>
+                                            <td><span class="badge bg-light text-dark border small"><%= b.position.replace('_',' ') %></span></td>
+                                            <td class="text-muted small"><%= b.sort_order %></td>
+                                            <td>
+                                                <span class="badge <%= b.is_active ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' %>">
+                                                    <%= b.is_active ? 'Active' : 'Inactive' %>
+                                                </span>
+                                            </td>
+                                            <td class="pe-4">
+                                                <div class="d-flex gap-1 align-items-center">
+                                                    <a href="/admin/banners?edit=<%= b.id %>" class="btn btn-sm btn-outline-primary py-0 px-2"><i class="bi bi-pencil"></i></a>
+                                                    <form method="POST" action="/admin/banners/<%= b.id %>/toggle" class="d-inline">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit" class="border-0 bg-transparent p-0" title="<%= b.is_active ? 'Deactivate' : 'Activate' %>" style="cursor:pointer;">
+                                                            <i class="bi <%= b.is_active ? 'bi-toggle-on text-success' : 'bi-toggle-off text-secondary' %>" style="font-size:1.5rem;"></i>
+                                                        </button>
+                                                    </form>
+                                                    <form method="POST" action="/admin/banners/<%= b.id %>/delete" class="d-inline">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="return confirm('Delete this banner?')"><i class="bi bi-trash"></i></button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleBannerType() {
+            const isAdCode = document.getElementById('typeAdCode').checked;
+            document.getElementById('sectionImage').style.display = isAdCode ? 'none' : '';
+            document.getElementById('sectionAdCode').style.display = isAdCode ? '' : 'none';
+            document.getElementById('sectionLinkUrl').style.display = isAdCode ? 'none' : '';
+        }
+        document.getElementById('typeImage').addEventListener('change', toggleBannerType);
+        document.getElementById('typeAdCode').addEventListener('change', toggleBannerType);
+        // Init on load
+        toggleBannerType();
+    </script>
+</body>
+</html>

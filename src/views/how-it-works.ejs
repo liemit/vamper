@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="<%= (typeof lang !== 'undefined' && lang) ? String(lang) : 'en' %>">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How it works - Vamper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <%- include('../public/header') %>
+
+    <main class="py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-9 text-center">
+                    <h1 class="fw-bold"><%= (typeof t === 'function') ? t('howitworks.title', 'How it works') : 'How it works' %></h1>
+                    <p class="text-muted mb-0"><%= (typeof t === 'function') ? t('howitworks.subtitle', 'A simple flow for employers and freelancers to connect and get work done.') : 'A simple flow for employers and freelancers to connect and get work done.' %></p>
+                </div>
+            </div>
+
+            <div class="row g-3 g-lg-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge rounded-pill bg-primary-subtle text-primary"><%= (typeof t === 'function') ? t('howitworks.step_1_label', 'Step 1') : 'Step 1' %></span>
+                                <span class="fw-bold"><%= (typeof t === 'function') ? t('howitworks.step_1_title', 'Create an account') : 'Create an account' %></span>
+                            </div>
+                            <div class="text-muted"><%= (typeof t === 'function') ? t('howitworks.step_1_desc', 'Sign up as a Freelancer/Student or Employer/Client and complete your profile.') : 'Sign up as a Freelancer/Student or Employer/Client and complete your profile.' %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge rounded-pill bg-primary-subtle text-primary"><%= (typeof t === 'function') ? t('howitworks.step_2_label', 'Step 2') : 'Step 2' %></span>
+                                <span class="fw-bold"><%= (typeof t === 'function') ? t('howitworks.step_2_title', 'Post & apply') : 'Post & apply' %></span>
+                            </div>
+                            <div class="text-muted"><%= (typeof t === 'function') ? t('howitworks.step_2_desc', 'Employers post jobs. Freelancers browse all jobs and send proposals.') : 'Employers post jobs. Freelancers browse all jobs and send proposals.' %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge rounded-pill bg-primary-subtle text-primary"><%= (typeof t === 'function') ? t('howitworks.step_3_label', 'Step 3') : 'Step 3' %></span>
+                                <span class="fw-bold"><%= (typeof t === 'function') ? t('howitworks.step_3_title', 'Work & get paid') : 'Work & get paid' %></span>
+                            </div>
+                            <div class="text-muted"><%= (typeof t === 'function') ? t('howitworks.step_3_desc', 'Chat, deliver milestones, and finalize the contract once the work is approved.') : 'Chat, deliver milestones, and finalize the contract once the work is approved.' %></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-2">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-briefcase text-primary"></i>
+                                <h2 class="h5 fw-bold mb-0"><%= (typeof t === 'function') ? t('howitworks.for_employers_title', 'For Employers') : 'For Employers' %></h2>
+                            </div>
+                            <div class="text-muted"><%= (typeof t === 'function') ? t('howitworks.for_employers_desc', 'Create a company profile, post jobs, review proposals, and manage applications in one place.') : 'Create a company profile, post jobs, review proposals, and manage applications in one place.' %></div>
+                            <div class="mt-3">
+                                <a href="/employer" class="btn btn-outline-primary"><%= (typeof t === 'function') ? t('howitworks.employers_cta', 'Go to Employer Dashboard') : 'Go to Employer Dashboard' %></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-person-workspace text-primary"></i>
+                                <h2 class="h5 fw-bold mb-0"><%= (typeof t === 'function') ? t('howitworks.for_freelancers_title', 'For Freelancers') : 'For Freelancers' %></h2>
+                            </div>
+                            <div class="text-muted"><%= (typeof t === 'function') ? t('howitworks.for_freelancers_desc', 'Find jobs, submit proposals, and build your portfolio with real-world projects.') : 'Find jobs, submit proposals, and build your portfolio with real-world projects.' %></div>
+                            <div class="mt-3">
+                                <a href="/jobs" class="btn btn-primary"><%= (typeof t === 'function') ? t('howitworks.freelancers_cta', 'Browse Jobs') : 'Browse Jobs' %></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

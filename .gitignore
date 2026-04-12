@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.sql
+src/public/img/
+uploads/
+*.zip
+*.rar
+*.mp4
+*.pdf

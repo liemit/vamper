@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vamper - Withdrawals</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+
+    <style>
+        
+        .admin-page main {
+            background: linear-gradient(180deg, #f6f8fc 0%, #f0f7ff 100%);
+        }
+
+        .admin-page .card {
+            border: 1px solid #eef2f7;
+        }
+
+        .admin-page .accordion-button::after {
+            filter: none;
+        }
+
+        .admin-page .admin-sidebar {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion,
+        .admin-page .admin-sidebar .accordion-item,
+        .admin-page .admin-sidebar .accordion-header,
+        .admin-page .admin-sidebar .accordion-collapse,
+        .admin-page .admin-sidebar .accordion-body {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-item {
+            border: 0 !important;
+        }
+
+        .admin-page .admin-sidebar .input-group-text,
+        .admin-page .admin-sidebar .form-control {
+            border-color: #dee2e6 !important;
+        }
+
+        .admin-page .admin-sidebar .form-control::placeholder {
+            color: #6c757d !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button {
+            color: #0d1b2a !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border-radius: 0.75rem !important;
+            padding: 0.65rem 0.75rem !important;
+            font-weight: 600;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:hover {
+            background: #f1f5ff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:not(.collapsed) {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button.collapsed {
+            background: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button i {
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar a:hover {
+            background: #f1f5ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a,
+        .admin-page .admin-sidebar a span,
+        .admin-page .admin-sidebar a i {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-body {
+            padding: 0.35rem 0.25rem;
+        }
+
+        .admin-page .admin-sidebar .accordion-body a {
+            padding: 0.5rem 0.6rem;
+            border-radius: 0.6rem;
+        }
+
+        .admin-page .admin-sidebar a[style*="background"] {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar-head {
+            background: linear-gradient(135deg, #e7f1ff 0%, #ffe8f0 50%, #e6fbff 100%) !important;
+        }
+
+        .admin-page .admin-sidebar-head,
+        .admin-page .admin-sidebar-head * {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .table thead th {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+
+<body class="admin-page">
+    <%- include('../../public/header') %>
+
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row g-0">
+            <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0">
+                <%- include('layouts/menu') %>
+            </aside>
+
+            <section class="col-12 col-md-9 col-lg-10">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div>
+                        <h4 class="mb-1">Withdrawals</h4>
+                        <div class="text-muted small">Withdrawal requests from Freelancer and Employer</div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-4">
+                        <div class="card shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-muted small">Total Paid</div>
+                                        <div class="fs-4 fw-semibold"><%= (typeof totalPaid !== 'undefined' && totalPaid !== null) ? totalPaid : 0 %></div>
+                                    </div>
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: #e8fff0; color: #198754;">
+                                        <i class="bi bi-check2-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="card shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-muted small">Total Paid (Freelancer)</div>
+                                        <div class="fs-4 fw-semibold"><%= (typeof totalPaidFreelancer !== 'undefined' && totalPaidFreelancer !== null) ? totalPaidFreelancer : 0 %></div>
+                                    </div>
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: #e7f1ff; color: #0d6efd;">
+                                        <i class="bi bi-person-badge"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="card shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-muted small">Total Paid (Employer)</div>
+                                        <div class="fs-4 fw-semibold"><%= (typeof totalPaidEmployer !== 'undefined' && totalPaidEmployer !== null) ? totalPaidEmployer : 0 %></div>
+                                    </div>
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: #fff7e6; color: #fd7e14;">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm rounded-4 mb-3">
+                    <div class="card-body">
+                        <form method="GET" action="/admin/withdrawals" class="row g-2 align-items-end">
+                            <div class="col-12 col-md-2">
+                                <label class="form-label small">Status</label>
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="" <%= (!query || !query.status) ? 'selected' : '' %>>All</option>
+                                    <option value="pending" <%= (query && query.status === 'pending') ? 'selected' : '' %>>Pending</option>
+                                    <option value="approved" <%= (query && query.status === 'approved') ? 'selected' : '' %>>Approved</option>
+                                    <option value="paid" <%= (query && query.status === 'paid') ? 'selected' : '' %>>Paid</option>
+                                    <option value="rejected" <%= (query && query.status === 'rejected') ? 'selected' : '' %>>Rejected</option>
+                                    <option value="cancelled" <%= (query && query.status === 'cancelled') ? 'selected' : '' %>>Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label small">Role</label>
+                                <select name="role" class="form-select form-select-sm">
+                                    <option value="" <%= (!query || !query.role) ? 'selected' : '' %>>All</option>
+                                    <option value="freelancer" <%= (query && query.role === 'freelancer') ? 'selected' : '' %>>Freelancer</option>
+                                    <option value="employer" <%= (query && query.role === 'employer') ? 'selected' : '' %>>Employer</option>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small">Month</label>
+                                <select name="month" class="form-select form-select-sm">
+                                    <option value="">All</option>
+                                    <% ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].forEach((m,i) => { %>
+                                        <option value="<%= i+1 %>" <%= (query && query.month == i+1) ? 'selected' : '' %>><%= m %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-1">
+                                <label class="form-label small">Year</label>
+                                <select name="year" class="form-select form-select-sm">
+                                    <option value="">All</option>
+                                    <% const curY = new Date().getFullYear(); for (let y = curY; y >= curY-3; y--) { %>
+                                        <option value="<%= y %>" <%= (query && query.year == y) ? 'selected' : '' %>><%= y %></option>
+                                    <% } %>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small">Search</label>
+                                <input type="text" name="q" class="form-control form-control-sm" placeholder="PayPal email / user email / name" value="<%= (query && query.q) ? query.q : '' %>">
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <button class="btn btn-primary btn-sm w-100" type="submit">
+                                    <i class="bi bi-search me-1"></i> Filter
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm rounded-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 90px;">#ID</th>
+                                        <th>User</th>
+                                        <th style="width: 120px;">Role</th>
+                                        <th>PayPal</th>
+                                        <th style="width: 140px;" class="text-end">Amount</th>
+                                        <th style="width: 140px;">Status</th>
+                                        <th style="width: 190px;">Payout</th>
+                                        <th style="width: 190px;">Created</th>
+                                        <th style="width: 260px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (withdrawals && withdrawals.length) { %>
+                                        <% withdrawals.forEach((w) => { %>
+                                            <tr>
+                                                <td class="fw-semibold">#<%= w.id %></td>
+                                                <td>
+                                                    <div class="fw-semibold"><%= (w.user_full_name || w.user_email || ('User #' + w.user_id)) %></div>
+                                                    <div class="small text-muted"><%= w.user_email || '' %></div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge text-bg-light border">
+                                                        <%= w.role %>
+                                                    </span>
+                                                </td>
+                                                <td class="text-break" style="max-width: 240px;">
+                                                    <%= w.paypal_email %>
+                                                </td>
+                                                <td class="text-end fw-semibold"><%= w.amount_credits %></td>
+                                                <td>
+                                                    <% const st = (w.status || '').toLowerCase(); %>
+                                                    <% const cls = (st === 'pending') ? 'warning' : (st === 'approved') ? 'info' : (st === 'paid') ? 'success' : (st === 'rejected') ? 'danger' : 'secondary'; %>
+                                                    <span class="badge text-bg-<%= cls %>"><%= st %></span>
+                                                </td>
+                                                <td>
+                                                    <div class="small"><%= w.payout_txid ? w.payout_txid : '-' %></div>
+                                                    <div class="small text-muted"><%= w.admin_note ? w.admin_note : '' %></div>
+                                                </td>
+                                                <td>
+                                                    <div class="small"><%= w.created_at ? new Date(w.created_at).toLocaleString() : '' %></div>
+                                                    <div class="small text-muted">TX: <%= w.transaction_id ? ('#' + w.transaction_id) : '-' %></div>
+                                                </td>
+                                                <td>
+                                                    <% const st2 = (w.status || '').toLowerCase(); %>
+
+                                                    <% if (st2 === 'pending') { %>
+                                                        <form method="POST" action="/admin/withdrawals/<%= w.id %>/approve" class="d-inline">
+                                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                            <button type="submit" class="btn btn-sm btn-outline-primary">Approve</button>
+                                                        </form>
+                                                    <% } %>
+
+                                                    <% if (st2 === 'pending' || st2 === 'approved') { %>
+                                                        <form method="POST" action="/admin/withdrawals/<%= w.id %>/reject" class="d-inline">
+                                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                            <input type="hidden" name="admin_note" value="Rejected by admin">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Reject this withdrawal and unlock funds?');">Reject</button>
+                                                        </form>
+                                                    <% } %>
+
+                                                    <% if (st2 === 'approved') { %>
+                                                        <form method="POST" action="/admin/withdrawals/<%= w.id %>/mark-paid" class="mt-2">
+                                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                            <div class="input-group input-group-sm mb-2">
+                                                                <span class="input-group-text">TXID (optional)</span>
+                                                                <input type="text" name="payout_txid" class="form-control" placeholder="PayPal transaction id (optional)">
+                                                            </div>
+                                                            <input type="hidden" name="admin_note" value="Paid manually">
+                                                            <button type="submit" class="btn btn-sm btn-success w-100" onclick="return confirm('Mark this withdrawal as PAID?');">Mark Paid</button>
+                                                        </form>
+                                                    <% } %>
+
+                                                    <% if (st2 === 'paid') { %>
+                                                        <span class="text-success small fw-semibold">Paid</span>
+                                                    <% } %>
+                                                    <% if (st2 === 'rejected') { %>
+                                                        <span class="text-danger small fw-semibold">Rejected</span>
+                                                    <% } %>
+                                                    <% if (st2 === 'cancelled') { %>
+                                                        <span class="text-muted small fw-semibold">Cancelled</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="10" class="text-center py-4 text-muted">No withdrawal requests found.</td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <% if (pagination && pagination.totalPages && pagination.totalPages > 1) { %>
+                            <nav class="mt-3">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <% const buildQuery = (p) => {
+                                        const qs = new URLSearchParams();
+                                        if (query && query.status) qs.set('status', query.status);
+                                        if (query && query.role) qs.set('role', query.role);
+                                        if (query && query.q) qs.set('q', query.q);
+                                        qs.set('page', String(p));
+                                        return '/admin/withdrawals?' + qs.toString();
+                                    }; %>
+                                    <li class="page-item <%= (pagination.page <= 1) ? 'disabled' : '' %>">
+                                        <a class="page-link" href="<%= buildQuery(pagination.page - 1) %>">Prev</a>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Page <%= pagination.page %> / <%= pagination.totalPages %></span>
+                                    </li>
+                                    <li class="page-item <%= (pagination.page >= pagination.totalPages) ? 'disabled' : '' %>">
+                                        <a class="page-link" href="<%= buildQuery(pagination.page + 1) %>">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <% } %>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

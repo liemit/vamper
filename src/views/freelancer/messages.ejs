@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="<%= (typeof lang !== 'undefined' && lang) ? String(lang) : 'en' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= (typeof t === 'function') ? t('freelancer.messages.title', 'Messages') : 'Messages' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .freelancer-messages .chat-shell {
+            height: calc(100vh - 160px);
+            min-height: 560px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .freelancer-messages .chat-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .freelancer-messages .chat-header-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .freelancer-messages .chat-header-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .freelancer-messages .chat-header-info {
+            min-width: 0;
+        }
+
+        .freelancer-messages .chat-header-info h5 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .freelancer-messages .chat-pane-body {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        .freelancer-messages .chat-thread {
+            width: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .freelancer-messages .chat-msg {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .freelancer-messages .chat-msg.from-other {
+            justify-content: flex-start;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        .freelancer-messages .chat-msg.from-me {
+            justify-content: flex-end;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .freelancer-messages .chat-msg.from-me {
+            gap: 0;
+        }
+
+        .freelancer-messages .chat-msg.from-me .msg-avatar {
+            display: none;
+        }
+
+        .freelancer-messages .msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .freelancer-messages .bubble {
+            max-width: min(72ch, 78%);
+            padding: 10px 12px;
+            border-radius: 16px;
+            line-height: 1.35;
+        }
+
+        .freelancer-messages .chat-msg.from-other .bubble {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-top-left-radius: 6px;
+        }
+
+        .freelancer-messages .chat-msg.from-me .bubble {
+            margin-left: auto;
+            background: #0d6efd;
+            color: #ffffff;
+            border-top-right-radius: 6px;
+        }
+
+        .freelancer-messages .bubble .meta {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .freelancer-messages .chat-msg.from-me .bubble .meta {
+            text-align: right;
+        }
+
+        .freelancer-messages .composer-area {
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+            padding: 12px 16px;
+            background: #fff;
+        }
+
+        .freelancer-messages .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .freelancer-messages .composer-input {
+            width: 100%;
+            resize: none;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 14px;
+            padding: 10px 12px;
+            outline: none;
+        }
+
+        .freelancer-messages .send-btn {
+            border: 0;
+            background: #0d6efd;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .freelancer-messages .composer-tools {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .freelancer-messages .tool-btn {
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            background: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../../public/header') %>
+
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row">
+            <%- include('./layouts/menu') %>
+
+            <section class="col-md-9 ms-sm-auto col-lg-10 px-2 px-md-4 freelancer-messages">
+                <div class="d-flex align-items-center justify-content-between pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><%= (typeof t === 'function') ? t('freelancer.messages.heading', 'Messages') : 'Messages' %></h1>
+                </div>
+
+                <% const emp = employer || {}; %>
+                <% const j = job || {}; %>
+                <% const list = (typeof messages !== 'undefined' && Array.isArray(messages)) ? messages : []; %>
+                <% const meId = (user && user.id) ? Number(user.id) : null; %>
+                <% const empName = emp.company_name || (typeof t === 'function' ? t('freelancer.messages.unknown_employer', 'Employer') : 'Employer'); %>
+                <% const empAvatar = emp.logo_url || 'https://via.placeholder.com/40'; %>
+
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="chat-shell">
+                            <!-- Chat Area (Facebook Style) -->
+                            <section class="col-12 chat-col">
+                                <div class="chat-header">
+                                    <div class="chat-header-user">
+                                        <img src="<%= empAvatar %>" class="chat-header-avatar" alt="Avatar">
+                                        <div class="chat-header-info">
+                                            <h5><%= empName %></h5>
+                                            <div class="text-muted small">
+                                                <% if (j && j.title) { %>
+                                                    <i class="bi bi-briefcase me-1"></i><%= j.title %>
+                                                <% } else { %>
+                                                    <%= (typeof t === 'function') ? t('freelancer.messages.active_now', 'Active now') : 'Active now' %>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <% if (emp && emp.id && (typeof toId !== 'undefined' && toId) && (j && j.id)) { %>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="btnOpenDispute" title="Report / Dispute">
+                                                <i class="bi bi-info-circle"></i>
+                                            </button>
+                                        <% } %>
+                                        <% if (j && j.id && typeof isDeposited !== 'undefined') { %>
+                                            <% const jobType = (j.job_type) ? String(j.job_type).toLowerCase() : 'fixed_price'; %>
+                                            
+                                            <% if (jobType === 'hourly' && (isDeposited === 1 || isDeposited === true)) { %>
+                                                <!-- Hourly Timer Display (Read-Only for Freelancer) -->
+                                                <div id="hourlyTimerDisplay" class="d-flex align-items-center me-3 border rounded px-2 py-1 bg-light shadow-sm">
+                                                    <div class="me-2 text-end" style="line-height: 1.1;">
+                                                        <div class="small text-muted" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Time Worked</div>
+                                                        <div id="timerDisplay" class="fw-bold font-monospace text-dark">00:00:00</div>
+                                                    </div>
+                                                    <!-- Hide Est. Cost for Freelancer as well to reduce clutter -->
+                                                    <div class="me-2 text-end border-start ps-2 d-none" style="line-height: 1.1;" id="timerEarningsContainer">
+                                                        <div class="small text-muted" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Earnings</div>
+                                                        <div id="timerEarnings" class="fw-bold text-success"><i class="bi bi-gem"></i> 0.00</div>
+                                                    </div>
+                                                    <div class="me-2 text-end border-start ps-2" style="line-height: 1.1;">
+                                                        <div class="small text-muted" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Pending</div>
+                                                        <div id="timerPending" class="fw-bold text-warning" title="Waiting for employer approval"><i class="bi bi-gem"></i> 0.00</div>
+                                                    </div>
+                                                    <div class="ms-2">
+                                                        <span id="timerStatusBadge" class="badge bg-secondary">Stopped</span>
+                                                    </div>
+                                                </div>
+                                            <% } %>
+
+                                            <% if (isDeposited === 0 || isDeposited === false) { %>
+                                                <span class="badge bg-warning text-dark me-2" title="Employer must deposit to unlock file uploads"><i class="bi bi-lock me-1"></i>Awaiting Activation</span>
+                                            <% } else if (isDeposited === 1 || isDeposited === true) { %>
+                                                <% if (jobType === 'hourly') { %>
+                                                    <span class="badge bg-info me-2"><i class="bi bi-shield-lock me-1"></i>Active</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-success me-2" title="Funds held in escrow"><i class="bi bi-shield-check me-1"></i>Deposited</span>
+                                                <% } %>
+                                            <% } else if (isDeposited === 2) { %>
+                                                <span class="badge bg-primary me-2"><i class="bi bi-check-all me-1"></i>Paid</span>
+                                            <% } %>
+                                        <% } %>
+                                        <% if (j && j.slug) { %>
+                                            <a class="btn btn-outline-secondary btn-sm" href="/freelancer/jobs/<%= j.slug %>">
+                                                <i class="bi bi-box-arrow-up-right me-1"></i><%= (typeof t === 'function') ? t('freelancer.messages.view_job', 'View job') : 'View job' %>
+                                            </a>
+                                        <% } %>
+                                    </div>
+                                </div>
+
+                                <div class="chat-pane-body">
+                                    <div class="chat-thread" id="chatThreadFreelancer"
+                                         data-me-id="<%= (user && user.id) ? user.id : '' %>"
+                                         data-to-id="<%= (typeof toId !== 'undefined' && toId) ? toId : (emp && emp.id ? emp.id : '') %>"
+                                         data-job-id="<%= (typeof jobId !== 'undefined' && jobId) ? jobId : (j && j.id ? j.id : '') %>"
+                                         data-is-deposited="<%= (typeof isDeposited !== 'undefined' && isDeposited !== null) ? isDeposited : 0 %>"
+                                         data-job-type="<%= (j && j.job_type) ? String(j.job_type) : '' %>"
+                                         data-me-avatar="<%= (user && user.avatar_url) ? user.avatar_url : '' %>"
+                                         data-other-avatar="<%= (emp && emp.logo_url) ? emp.logo_url : '' %>">
+                                        <% if (!list.length) { %>
+                                            <div class="text-center text-muted py-5">
+                                                No messages yet. Say hi to start the conversation!
+                                            </div>
+                                        <% } %>
+
+                                        <% list.forEach(function(m) { %>
+                                            <% const isMe = (meId !== null && Number(m.sender_id) === Number(meId)); %>
+                                            <% const rowClass = isMe ? 'from-me' : 'from-other'; %>
+                                            <% const avatar = isMe
+                                                ? ((user && user.avatar_url) ? user.avatar_url : 'https://via.placeholder.com/28')
+                                                : (emp.logo_url || m.sender_avatar || 'https://via.placeholder.com/28'); %>
+                                            <div class="chat-msg <%= rowClass %>" data-msg-id="<%= m.id %>">
+                                                <% if (!isMe) { %>
+                                                    <img src="<%= avatar %>" class="msg-avatar" alt="User">
+                                                <% } %>
+                                                
+                                                <% if (isMe) { %>
+                                                    <button class="reply-btn me-2 btn-reply-action" 
+                                                        data-id="<%= m.id %>"
+                                                        data-sender="You"
+                                                        data-content="<%= (m.content || '').replace(/"/g, '&quot;') %>"
+                                                        data-type="<%= m.attachment_type %>">
+                                                        <i class="bi bi-reply-fill"></i>
+                                                    </button>
+                                                    <button class="reply-btn me-2 btn-delete-action text-danger" 
+                                                        data-id="<%= m.id %>"
+                                                        title="Delete message">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                    </button>
+                                                <% } %>
+
+                                                <div class="bubble">
+                                                    <% if (m.reply_to_id) { %>
+                                                        <div class="replied-msg p-2 mb-2 rounded bg-light small" style="border-left: 4px solid #0d6efd; cursor: pointer; opacity: 0.9;" onclick="document.querySelector('[data-msg-id=\'<%= m.reply_to_id %>\']')?.scrollIntoView({behavior: 'smooth', block: 'center'})">
+                                                            <div class="fw-bold text-primary mb-1">
+                                                                <% if (m.reply_sender_id && Number(m.reply_sender_id) === Number(meId)) { %>
+                                                                    You
+                                                                <% } else { %>
+                                                                    <%= empName %>
+                                                                <% } %>
+                                                            </div>
+                                                            <div class="text-truncate text-muted" style="max-width: 200px;">
+                                                                <% if (m.reply_attachment_type === 'image') { %>
+                                                                    <i class="bi bi-image"></i> Photo
+                                                                <% } else if (m.reply_attachment_type === 'video') { %>
+                                                                    <i class="bi bi-camera-video"></i> Video
+                                                                <% } else if (m.reply_attachment_type === 'file') { %>
+                                                                    <i class="bi bi-paperclip"></i> File
+                                                                <% } else { %>
+                                                                    <%= m.reply_content %>
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                    <% } %>
+
+                                                    <div><%= m.content || '' %></div>
+                                                    <% if (m.attachment_url) { %>
+                                                        <% if (m.attachment_type === 'image') { %>
+                                                            <div class="mt-2">
+                                                                <img src="<%= m.attachment_url %>" alt="attachment" style="max-width: 260px; width: 100%; height: auto; border-radius: 12px; display: block;">
+                                                            </div>
+                                                        <% } else if (m.attachment_type === 'video') { %>
+                                                            <div class="mt-2">
+                                                                <video src="<%= m.attachment_url %>" controls style="max-width: 320px; width: 100%; border-radius: 12px; display: block;"></video>
+                                                            </div>
+                                                        <% } else { %>
+                                                            <div class="mt-2">
+                                                                <a href="<%= m.attachment_url %>" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">Download file</a>
+                                                            </div>
+                                                        <% } %>
+                                                    <% } %>
+                                                    <div class="meta"><span class="js-local-dt" data-kind="time" data-utc="<%= m && m.created_at ? m.created_at : '' %>"></span></div>
+                                                </div>
+
+                                                <% if (!isMe) { %>
+                                                    <button class="reply-btn ms-2 btn-reply-action"
+                                                        data-id="<%= m.id %>"
+                                                        data-sender="<%= empName %>"
+                                                        data-content="<%= (m.content || '').replace(/"/g, '&quot;') %>"
+                                                        data-type="<%= m.attachment_type %>">
+                                                        <i class="bi bi-reply-fill"></i>
+                                                    </button>
+                                                <% } %>
+
+                                                <% if (isMe) { %>
+                                                    <img src="<%= avatar %>" class="msg-avatar" alt="Me">
+                                                <% } %>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                </div>
+
+
+
+
+
+                                    <div class="composer-area">
+                                        <div id="reply-preview-area" class="reply-preview-area d-none mb-2 rounded border bg-light p-2 align-items-center justify-content-between">
+                                            <div class="d-flex flex-column small overflow-hidden" style="max-width: 90%;">
+                                                <strong class="text-primary mb-1">Replying to <span id="reply-to-name">...</span></strong>
+                                                <span id="reply-to-content" class="text-truncate text-muted">...</span>
+                                            </div>
+                                            <button type="button" class="btn-close btn-sm" aria-label="Close" id="btn-cancel-reply"></button>
+                                        </div>
+
+                                        <div id="upload-progress-container" class="d-none mb-2">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="small text-muted" id="upload-status-text">Uploading...</span>
+                                                <span class="small fw-bold text-success d-none" id="upload-complete-text">Completed</span>
+                                            </div>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="upload-progress-bar"></div>
+                                            </div>
+                                        </div>
+
+                                        <form method="post" action="/freelancer/messages/send?_csrf=<%= encodeURIComponent((typeof csrfToken !== 'undefined' && csrfToken) ? csrfToken : '') %>" enctype="multipart/form-data" id="msgForm">
+                                            <input type="hidden" name="_csrf" value="<%= (typeof csrfToken !== 'undefined' && csrfToken) ? csrfToken : '' %>">
+                                            <input type="hidden" name="replyTo" id="replyToInput">
+                                            <input type="hidden" name="to" value="<%= (typeof toId !== 'undefined' && toId) ? toId : (emp && emp.id ? emp.id : '') %>">
+                                            <input type="hidden" name="job" value="<%= (typeof jobId !== 'undefined' && jobId) ? jobId : (j && j.id ? j.id : '') %>">
+                                            <input type="hidden" name="attachmentUrl" id="attachmentUrl">
+                                            <input type="hidden" name="attachmentType" id="attachmentType">
+                                            
+                                            <!-- We keep the file input but remove name="attachment" so it's not sent with the form if we use AJAX upload. 
+                                                 However, for fallback or if we want to support both, we can keep it. 
+                                                 But the requirement is to upload BEFORE sending. 
+                                                 So we should probably remove the name attribute or clear it before submit if we use the hidden fields.
+                                                 Let's keep it for now but we will clear it in JS if upload is successful.
+                                            -->
+                                            <input type="file" class="d-none" id="chatAttachmentFreelancer">
+                                            
+                                            <div class="input-wrapper mb-2">
+                                                <textarea class="composer-input" name="content" rows="1" placeholder="<%= (typeof t === 'function') ? t('freelancer.messages.type_here', 'Type a message...') : 'Type a message...' %>"></textarea>
+                                                <button class="send-btn" type="submit" id="btnSend"><i class="bi bi-send-fill"></i></button>
+                                            </div>
+                                            <div class="composer-tools">
+                                                <button class="tool-btn" type="button" title="Image" data-pick="image"><i class="bi bi-image"></i></button>
+                                                <button class="tool-btn" type="button" title="Video" data-pick="video"><i class="bi bi-camera-video"></i></button>
+                                                <button class="tool-btn" type="button" title="File" data-pick="file"><i class="bi bi-paperclip"></i></button>
+                                                <div class="emoji-wrap" data-emoji-wrap>
+                                                    <button class="tool-btn" type="button" title="Emoji" data-emoji-toggle><i class="bi bi-emoji-smile"></i></button>
+                                                    <div class="emoji-panel" data-emoji-panel hidden></div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <%- include('../../public/footer') %>
+
+    <div class="modal fade" id="disputeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report / Dispute</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info small">
+                        Please describe the issue clearly and attach images as evidence. Your report will be reviewed by admin.
+                    </div>
+
+                    <form id="disputeForm" enctype="multipart/form-data">
+                        <input type="hidden" name="_csrf" value="<%= (typeof csrfToken !== 'undefined' && csrfToken) ? csrfToken : '' %>">
+                        <input type="hidden" name="job_id" value="<%= (j && j.id) ? j.id : '' %>">
+                        <input type="hidden" name="reported_user_id" value="<%= (emp && emp.id) ? emp.id : '' %>">
+                        <input type="hidden" name="proposal_id" value="<%= (typeof proposalId !== 'undefined' && proposalId) ? proposalId : '' %>">
+
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category" required>
+                                <option value="scam">Scam / Fraud</option>
+                                <option value="non_payment">Non-payment</option>
+                                <option value="non_delivery">Non-delivery</option>
+                                <option value="harassment">Harassment</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Details</label>
+                            <textarea class="form-control" name="message" rows="4" maxlength="2000" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Evidence images (jpg/png/webp)</label>
+                            <input class="form-control" type="file" name="evidence" id="disputeEvidence" accept="image/jpeg,image/png,image/webp" multiple>
+                            <div class="form-text">Up to 5 images.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="btnSubmitDispute">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/index.min.js"></script>
+    <script src="/js/emojis.js"></script>
+    <script>
+    // Timer Logic for Freelancer (Read-Only)
+    (function() {
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerEarnings = document.getElementById('timerEarnings');
+        const timerPending = document.getElementById('timerPending');
+        const timerStatusBadge = document.getElementById('timerStatusBadge');
+        
+        // Initial State
+        let timerState = {
+            status: 'stopped',
+            start_time: null,
+            total_seconds: 0,
+            paid_seconds: 0,
+            pending_balance: 0,
+            hourly_rate: <%= (typeof j !== 'undefined' && j && j.hourly_rate) ? j.hourly_rate : (typeof proposal !== 'undefined' && proposal && proposal.bid_amount ? proposal.bid_amount : 0) %>
+        };
+        
+        // Helper: Format Seconds to HH:MM:SS
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // Update UI
+        function updateTimerUI() {
+            if (!timerDisplay) return;
+
+            let currentTotal = timerState.total_seconds;
+            if (timerState.status === 'running' && timerState.start_time) {
+                const start = new Date(timerState.start_time).getTime();
+                const now = Date.now();
+                const elapsed = Math.floor((now - start) / 1000);
+                if (elapsed > 0) currentTotal += elapsed;
+            }
+
+            timerDisplay.textContent = formatTime(currentTotal);
+            
+            // Earnings Calculation
+            const earnings = (currentTotal / 3600) * timerState.hourly_rate;
+            if (timerEarnings) {
+                timerEarnings.innerHTML = '<i class="bi bi-gem"></i> ' + earnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            // Pending Amount (Real-time calculation including current session)
+            const unpaidSeconds = Math.max(0, currentTotal - timerState.paid_seconds);
+            const currentSessionCost = (unpaidSeconds / 3600) * timerState.hourly_rate;
+            const dbPending = Number(timerState.pending_balance || 0);
+            
+            const totalPendingDisplay = (timerState.status === 'running') 
+                                        ? currentSessionCost 
+                                        : dbPending;
+
+            if (timerPending) {
+                timerPending.innerHTML = '<i class="bi bi-gem"></i> ' + totalPendingDisplay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            // Status Badge
+            if (timerStatusBadge) {
+                if (timerState.status === 'running') {
+                    timerStatusBadge.className = 'badge bg-success';
+                    timerStatusBadge.textContent = 'Running';
+                    timerStatusBadge.classList.add('pulse-animation'); // Optional: Add CSS for pulse
+                } else {
+                    timerStatusBadge.className = 'badge bg-secondary';
+                    timerStatusBadge.textContent = 'Stopped';
+                    timerStatusBadge.classList.remove('pulse-animation');
+                }
+            }
+        }
+
+        // Tick every second
+        setInterval(updateTimerUI, 1000);
+
+        // Expose update function for poll
+        window.updateFreelancerTimer = function(data) {
+            if (data && data.status) {
+                timerState.status = data.status;
+                timerState.start_time = data.start_time;
+                timerState.total_seconds = Number(data.total_seconds);
+                timerState.paid_seconds = Number(data.paid_seconds);
+                timerState.pending_balance = Number(data.pending_balance || 0);
+                updateTimerUI();
+            }
+        };
+    })();
+
+    (function() {
+        const btn = document.getElementById('btnOpenDispute');
+        const modalEl = document.getElementById('disputeModal');
+        const form = document.getElementById('disputeForm');
+        const evidenceInput = document.getElementById('disputeEvidence');
+        const btnSubmit = document.getElementById('btnSubmitDispute');
+
+        if (!btn || !modalEl || !form) return;
+
+        const modal = new bootstrap.Modal(modalEl);
+        btn.addEventListener('click', () => {
+            try {
+                form.reset();
+            } catch (_) {}
+            modal.show();
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (btnSubmit) btnSubmit.disabled = true;
+
+            try {
+                if (evidenceInput && evidenceInput.files && evidenceInput.files.length > 5) {
+                    alert('Please upload up to 5 images.');
+                    return;
+                }
+
+                const fd = new FormData(form);
+                if (evidenceInput && evidenceInput.files && evidenceInput.files.length) {
+                    for (const f of evidenceInput.files) {
+                        fd.append('evidence', f);
+                    }
+                }
+
+                const res = await fetch('/freelancer/disputes/create', {
+                    method: 'POST',
+                    headers: {
+                        'CSRF-Token': fd.get('_csrf') || '',
+                        'X-CSRF-Token': fd.get('_csrf') || ''
+                    },
+                    body: fd
+                });
+
+                const data = await res.json().catch(() => null);
+                if (!res.ok || !data || !data.ok) {
+                    throw new Error((data && data.error) ? data.error : 'Failed to submit dispute');
+                }
+
+                alert('Report submitted. Admin will review it shortly.');
+                modal.hide();
+            } catch (err) {
+                console.error(err);
+                alert(err && err.message ? err.message : 'Failed to submit dispute');
+            } finally {
+                if (btnSubmit) btnSubmit.disabled = false;
+            }
+        });
+    })();
+    </script>
+
+    <script>
+        const threadElInit = document.getElementById('chatThreadFreelancer');
+        const isDeposited = threadElInit && threadElInit.dataset && threadElInit.dataset.isDeposited !== undefined
+            ? (Number(threadElInit.dataset.isDeposited) || 0)
+            : 0;
+
+        // Initialize Emoji Button
+        document.addEventListener('DOMContentLoaded', () => {
+            // Disable upload buttons if not deposited
+            if (!Number.isFinite(isDeposited) || isDeposited <= 0) {
+                const tools = document.querySelectorAll('.tool-btn[data-pick]');
+                tools.forEach(btn => {
+                    btn.disabled = true;
+                    btn.title = 'Employer must deposit to unlock';
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                });
+            }
+
+            const initEmoji = () => {
+                if (typeof EmojiButton !== 'undefined') {
+                    try {
+                        const picker = new EmojiButton({
+                            position: 'bottom-start',
+                            style: 'native',
+                            zIndex: 9999,
+                            theme: 'auto',
+                            autoHide: false,
+                            rootElement: document.body
+                        });
+                        const trigger = document.getElementById('btn-emoji');
+                        
+                        if (trigger) {
+                            picker.on('emoji', selection => {
+                                const textarea = document.querySelector('.composer-input');
+                                if (textarea) {
+                                    const start = textarea.selectionStart;
+                                    const end = textarea.selectionEnd;
+                                    const text = textarea.value;
+                                    const before = text.substring(0, start);
+                                    const after  = text.substring(end, text.length);
+                                    textarea.value = (before + selection.emoji + after);
+                                    textarea.selectionStart = textarea.selectionEnd = start + selection.emoji.length;
+                                    textarea.focus();
+                                    // Trigger input event to resize
+                                    const event = new Event('input', { bubbles: true });
+                                    textarea.dispatchEvent(event);
+                                }
+                            });
+                            trigger.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('Emoji button clicked');
+                                picker.togglePicker(trigger);
+                            });
+                            console.log('Emoji picker initialized');
+                        }
+                    } catch (e) {
+                        console.error('EmojiButton initialization failed:', e);
+                    }
+                } else {
+                    console.warn('EmojiButton library not loaded yet, retrying...');
+                    setTimeout(initEmoji, 500);
+                }
+            };
+            
+            initEmoji();
+        });
+
+        // Simple script to auto-resize textarea
+        const tx = document.querySelector('.composer-input');
+        if(tx) {
+            tx.setAttribute('style', 'height:' + (tx.scrollHeight) + 'px;overflow-y:hidden;');
+            tx.addEventListener("input", OnInput, false);
+        }
+
+        function OnInput() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        }
+
+        const fileInput = document.getElementById('chatAttachmentFreelancer');
+        const progressContainer = document.getElementById('upload-progress-container');
+        const progressBar = document.getElementById('upload-progress-bar');
+        const statusText = document.getElementById('upload-status-text');
+        const completeText = document.getElementById('upload-complete-text');
+        const btnSend = document.getElementById('btnSend');
+        const attachmentUrlInput = document.getElementById('attachmentUrl');
+        const attachmentTypeInput = document.getElementById('attachmentType');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    const file = this.files[0];
+                    uploadFile(file);
+                }
+            });
+        }
+
+        function uploadFile(file) {
+            const isImage = file && file.type && file.type.startsWith('image/');
+            const isVideo = file && file.type && file.type.startsWith('video/');
+            const maxImageMB = 10;
+            const maxVideoMB = 200;
+            const maxFileMB = 200;
+            let limitMB = maxFileMB;
+            if (isImage) limitMB = maxImageMB;
+            else if (isVideo) limitMB = maxVideoMB;
+            const limitBytes = limitMB * 1024 * 1024;
+            if (file && file.size && file.size > limitBytes) {
+                openPlanModal(isImage ? 'image' : (isVideo ? 'video' : 'file'));
+                resetUpload();
+                return;
+            }
+            // Show progress
+            if (progressContainer) progressContainer.classList.remove('d-none');
+            if (progressBar) {
+                progressBar.style.width = '0%';
+                progressBar.classList.remove('bg-success');
+                progressBar.classList.add('progress-bar-animated');
+            }
+            if (statusText) statusText.classList.remove('d-none');
+            if (completeText) completeText.classList.add('d-none');
+            
+            // Disable send button
+            if (btnSend) btnSend.disabled = true;
+
+            const formData = new FormData();
+            formData.append('attachment', file);
+            // Get CSRF token from the hidden input in the form
+            const csrfInput = document.querySelector('input[name="_csrf"]');
+            if (csrfInput) {
+                formData.append('_csrf', csrfInput.value);
+            }
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', (window.__UPLOAD_BASE__ || '') + '/freelancer/messages/upload', true);
+
+            // Set CSRF token in header to bypass multipart/form-data body parsing issues
+            if (csrfInput) {
+                xhr.setRequestHeader('CSRF-Token', csrfInput.value);
+                xhr.setRequestHeader('X-CSRF-Token', csrfInput.value);
+            }
+
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    if (progressBar) progressBar.style.width = percentComplete + '%';
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (res.ok) {
+                            // Success
+                            if (progressBar) {
+                                progressBar.style.width = '100%';
+                                progressBar.classList.remove('progress-bar-animated');
+                                progressBar.classList.add('bg-success');
+                            }
+                            if (statusText) statusText.classList.add('d-none');
+                            if (completeText) completeText.classList.remove('d-none');
+                            
+                            if (attachmentUrlInput) attachmentUrlInput.value = res.url;
+                            if (attachmentTypeInput) attachmentTypeInput.value = res.type;
+                            
+                            // Enable send button
+                            if (btnSend) btnSend.disabled = false;
+                        } else {
+                            const err = (res && res.error) ? String(res.error) : '';
+                            if (err && (err.includes('limit') || err.includes('quota'))) {
+                                openPlanModal(isImage ? 'image' : (isVideo ? 'video' : 'file'));
+                            } else {
+                                alert('Upload failed: ' + (res.error || 'Unknown error'));
+                            }
+                            resetUpload();
+                        }
+                    } catch (e) {
+                        console.error('Error parsing response', e);
+                        alert('Upload failed: Server returned invalid response');
+                        resetUpload();
+                    }
+                } else {
+                    alert('Upload failed with status ' + xhr.status);
+                    resetUpload();
+                }
+            };
+
+            xhr.onerror = function() {
+                alert('Upload failed: Network error');
+                resetUpload();
+            };
+
+            xhr.send(formData);
+        }
+
+        function resetUpload() {
+            if (progressContainer) progressContainer.classList.add('d-none');
+            if (fileInput) fileInput.value = '';
+            if (attachmentUrlInput) attachmentUrlInput.value = '';
+            if (attachmentTypeInput) attachmentTypeInput.value = '';
+            if (btnSend) btnSend.disabled = false;
+        }
+
+        document.querySelectorAll('[data-pick]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (!fileInput) return;
+                const mode = btn.getAttribute('data-pick');
+                if (mode === 'image') fileInput.setAttribute('accept', 'image/*');
+                else if (mode === 'video') fileInput.setAttribute('accept', 'video/*');
+                else fileInput.removeAttribute('accept');
+                fileInput.click();
+            });
+        });
+
+        function ensurePlanModal() {
+            let el = document.getElementById('planModal');
+            if (el) return el;
+            el = document.createElement('div');
+            el.id = 'planModal';
+            el.className = 'modal fade';
+            el.tabIndex = -1;
+            el.setAttribute('aria-hidden', 'true');
+            el.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Upgrade Plan</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div id="planList" class="vstack gap-3"></div></div></div></div>';
+            document.body.appendChild(el);
+            return el;
+        }
+
+        async function openPlanModal(kind) {
+            try {
+                const modalEl = ensurePlanModal();
+                const res = await fetch('/freelancer/plans', { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const data = await res.json();
+                const list = Array.isArray(data.items) ? data.items : [];
+                const activeCode = data.active_plan_code || null;
+                const byPlan = {};
+                list.forEach(it => {
+                    const pid = it.code || it.id;
+                    if (!byPlan[pid]) byPlan[pid] = { code: it.code, name: it.name, price: it.price_monthly, currency: it.currency, limits: {} };
+                    if (it.kind) byPlan[pid].limits[it.kind] = { max_file_mb: it.max_file_mb, monthly_quota_mb: it.monthly_quota_mb };
+                });
+                const wrap = modalEl.querySelector('#planList');
+                if (!wrap) return;
+                wrap.innerHTML = '';
+                Object.values(byPlan).forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'border rounded-3 p-3';
+                    const title = document.createElement('div');
+                    title.className = 'fw-bold mb-1';
+                    title.textContent = p.name;
+                    const price = document.createElement('div');
+                    price.className = 'mb-1';
+                    if (p.price !== undefined && p.price !== null) {
+                        price.innerHTML = 'Price: <i class="bi bi-gem text-primary"></i> ' + (p.price) + '/' + 'month';
+                    }
+                    const detail = document.createElement('div');
+                    detail.className = 'text-muted small mb-2';
+                    const kinds = [
+                        { key: 'image', label: 'Image' },
+                        { key: 'video', label: 'Video' },
+                        { key: 'file', label: 'File' }
+                    ];
+                    kinds.forEach(k => {
+                        const lim = p.limits[k.key] || {};
+                        const line = document.createElement('div');
+                        line.textContent = k.label + ': Per-file ' + (lim.max_file_mb || '—') + 'MB · Monthly ' + (lim.monthly_quota_mb || '—') + 'MB';
+                        if (k.key === kind) line.style.fontWeight = '600';
+                        detail.appendChild(line);
+                    });
+                    const btn = document.createElement('button');
+                    const isActivePlan = (p.code && p.code === activeCode);
+                    if (isActivePlan) {
+                        btn.className = 'btn btn-outline-secondary btn-sm';
+                        btn.textContent = 'Free';
+                        btn.onclick = () => {
+                            const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+                            m.hide();
+                        };
+                    } else {
+                        btn.className = 'btn btn-primary btn-sm';
+                        btn.textContent = 'Activate';
+                        btn.onclick = async () => {
+                            const csrf = document.querySelector('input[name=\"_csrf\"]');
+                            const params = new URLSearchParams();
+                            params.set('plan_code', p.code);
+                            if (csrf) params.set('_csrf', csrf.value);
+                            const r = await fetch('/freelancer/plans/activate', {
+                                method: 'POST',
+                                headers: Object.assign(
+                                    { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                    csrf ? { 'CSRF-Token': csrf.value, 'X-CSRF-Token': csrf.value } : {}
+                                ),
+                                body: params.toString(),
+                                credentials: 'same-origin'
+                            });
+                            let ok = r.ok, msg = '';
+                            try { const j = await r.json(); ok = j && j.ok; msg = j && j.error ? j.error : ''; } catch(_) {}
+                            if (ok) {
+                                const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+                                m.hide();
+                                try {
+                                    const j = await r.clone().json();
+                                    if (j && j.new_balance !== undefined && j.new_balance !== null) {
+                                        const valEl = document.getElementById('headerBalanceValue');
+                                        if (valEl) {
+                                            const num = Number(j.new_balance);
+                                            valEl.textContent = Number.isFinite(num) ? num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : String(j.new_balance);
+                                        }
+                                    }
+                                } catch(_) {}
+                                alert('Plan activated');
+                            } else {
+                                alert(msg || 'Activation failed');
+                            }
+                        };
+                    }
+                    div.appendChild(title);
+                    div.appendChild(price);
+                    div.appendChild(detail);
+                    div.appendChild(btn);
+                    wrap.appendChild(div);
+                });
+                const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+                m.show();
+            } catch (_) {}
+        }
+
+        // Event delegation for reply buttons
+        document.addEventListener('click', function(e) {
+            // Reply
+            const btn = e.target.closest('.btn-reply-action');
+            if (btn) {
+                const id = btn.getAttribute('data-id');
+                const sender = btn.getAttribute('data-sender');
+                const content = btn.getAttribute('data-content');
+                const type = btn.getAttribute('data-type');
+                initReply(id, sender, content, type);
+                return;
+            }
+
+            // Delete
+            const delBtn = e.target.closest('.btn-delete-action');
+            if (delBtn) {
+                const id = delBtn.getAttribute('data-id');
+                if (!id) {
+                    console.error('Missing message ID for deletion');
+                    return;
+                }
+                if (confirm('Are you sure you want to delete this message?')) {
+                    deleteMessage(id, delBtn);
+                }
+            }
+        });
+
+        function deleteMessage(id, btnElement) {
+            if (!id) return;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/freelancer/messages/delete-msg/' + id, true);
+            
+            // CSRF
+            const csrfInput = document.querySelector('input[name="_csrf"]');
+            if (csrfInput) {
+                xhr.setRequestHeader('CSRF-Token', csrfInput.value);
+                xhr.setRequestHeader('X-CSRF-Token', csrfInput.value);
+            }
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (res.ok) {
+                            // Remove from DOM
+                            const row = btnElement.closest('.chat-msg');
+                            if (row) row.remove();
+                        } else {
+                            alert('Delete failed: ' + (res.error || 'Unknown error'));
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('Delete failed');
+                    }
+                } else {
+                    alert('Delete failed with status ' + xhr.status);
+                }
+            };
+            xhr.send();
+        }
+
+        // Cancel Reply Button
+        const btnCancel = document.getElementById('btn-cancel-reply');
+        if (btnCancel) {
+            btnCancel.addEventListener('click', function(e) {
+                e.preventDefault();
+                cancelReply();
+            });
+        }
+
+        const threadEl = document.getElementById('chatThreadFreelancer');
+        const paneEl = document.querySelector('.chat-pane-body');
+        const initialToId = (threadEl && threadEl.dataset && threadEl.dataset.toId)
+            ? (Number(threadEl.dataset.toId) || null)
+            : null;
+        const initialJobId = (threadEl && threadEl.dataset && threadEl.dataset.jobId)
+            ? (Number(threadEl.dataset.jobId) || null)
+            : null;
+        const ME_AVATAR = (threadEl && threadEl.dataset && threadEl.dataset.meAvatar) ? threadEl.dataset.meAvatar : '';
+        const OTHER_AVATAR = (threadEl && threadEl.dataset && threadEl.dataset.otherAvatar) ? threadEl.dataset.otherAvatar : '';
+        const meId = Number((threadEl && threadEl.dataset && threadEl.dataset.meId) ? threadEl.dataset.meId : 0);
+        let lastId = 0;
+
+        if (threadEl) {
+            const msgEls = threadEl.querySelectorAll('[data-msg-id]');
+            const lastMsg = msgEls && msgEls.length ? msgEls[msgEls.length - 1] : null;
+            if (lastMsg) lastId = Number(lastMsg.getAttribute('data-msg-id')) || 0;
+        }
+
+        function scrollToBottom() {
+            if (!paneEl) return;
+            paneEl.scrollTop = paneEl.scrollHeight;
+        }
+
+        const emojiWrap = document.querySelector('[data-emoji-wrap]');
+        const emojiToggle = document.querySelector('[data-emoji-toggle]');
+        const emojiPanel = document.querySelector('[data-emoji-panel]');
+        // EMOJIS array is loaded from /js/emojis.js
+        function closeEmoji() {
+            if (!emojiPanel) return;
+            emojiPanel.hidden = true;
+        }
+        if (emojiPanel && !emojiPanel.dataset.built) {
+            emojiPanel.dataset.built = '1';
+            const frag = document.createDocumentFragment();
+            EMOJIS.forEach((ch) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'emoji-item';
+                b.textContent = ch;
+                frag.appendChild(b);
+            });
+            emojiPanel.appendChild(frag);
+        }
+        if (emojiToggle && emojiPanel && tx) {
+            emojiToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                emojiPanel.hidden = !emojiPanel.hidden;
+                if (!emojiPanel.hidden) tx.focus();
+            });
+            emojiPanel.addEventListener('click', (e) => {
+                const target = e.target;
+                if (!target || !target.classList || !target.classList.contains('emoji-item')) return;
+                e.preventDefault();
+                const emoji = target.textContent || '';
+                const start = typeof tx.selectionStart === 'number' ? tx.selectionStart : tx.value.length;
+                const end = typeof tx.selectionEnd === 'number' ? tx.selectionEnd : tx.value.length;
+                tx.value = tx.value.slice(0, start) + emoji + tx.value.slice(end);
+                const nextPos = start + emoji.length;
+                try {
+                    tx.setSelectionRange(nextPos, nextPos);
+                } catch (_) {}
+                tx.dispatchEvent(new Event('input', { bubbles: true }));
+                tx.focus();
+            });
+            document.addEventListener('click', (e) => {
+                if (!emojiWrap) return;
+                if (emojiWrap.contains(e.target)) return;
+                closeEmoji();
+            });
+        }
+
+        function buildAttachmentNode(m) {
+            if (!m || !m.attachment_url) return null;
+            if (m.attachment_type === 'image') {
+                const img = document.createElement('img');
+                img.src = m.attachment_url;
+                img.alt = 'attachment';
+                img.style.maxWidth = '260px';
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                img.style.borderRadius = '12px';
+                img.style.display = 'block';
+                return img;
+            }
+            if (m.attachment_type === 'video') {
+                const v = document.createElement('video');
+                v.src = m.attachment_url;
+                v.controls = true;
+                v.style.maxWidth = '320px';
+                v.style.width = '100%';
+                v.style.borderRadius = '12px';
+                v.style.display = 'block';
+                return v;
+            }
+            const a = document.createElement('a');
+            a.href = m.attachment_url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = 'Download file';
+            a.style.color = 'inherit';
+            a.style.textDecoration = 'underline';
+            return a;
+        }
+
+        function initReply(msgId, senderName, content, type) {
+            const previewArea = document.getElementById('reply-preview-area');
+            const input = document.getElementById('replyToInput');
+            const nameEl = document.getElementById('reply-to-name');
+            const contentEl = document.getElementById('reply-to-content');
+            const textarea = document.querySelector('.composer-input');
+
+            if (!previewArea || !input) return;
+
+            input.value = msgId;
+            if (nameEl) nameEl.textContent = senderName;
+            
+            if (contentEl) {
+                if (type === 'image') contentEl.innerHTML = '<i class="bi bi-image"></i> Photo';
+                else if (type === 'video') contentEl.innerHTML = '<i class="bi bi-camera-video"></i> Video';
+                else if (type === 'file') contentEl.innerHTML = '<i class="bi bi-paperclip"></i> File';
+                else contentEl.textContent = content || '...';
+            }
+
+            previewArea.classList.remove('d-none');
+            previewArea.classList.add('d-flex');
+            
+            if (textarea) textarea.focus();
+        }
+
+        function cancelReply() {
+            const previewArea = document.getElementById('reply-preview-area');
+            const input = document.getElementById('replyToInput');
+            
+            if (input) input.value = '';
+            if (previewArea) {
+                previewArea.classList.remove('d-flex');
+                previewArea.classList.add('d-none');
+            }
+        }
+
+        function appendMessage(m) {
+            if (!threadEl || !m) return;
+
+            const isMe = Number(m.sender_id) === meId;
+            const row = document.createElement('div');
+            row.className = 'chat-msg ' + (isMe ? 'from-me' : 'from-other');
+            row.setAttribute('data-msg-id', String(m.id || ''));
+
+            const avatar = isMe
+                ? (ME_AVATAR || 'https://via.placeholder.com/28')
+                : (OTHER_AVATAR || 'https://via.placeholder.com/28');
+
+            if (!isMe) {
+                const av = document.createElement('img');
+                av.className = 'msg-avatar';
+                av.alt = 'User';
+                av.src = avatar;
+                row.appendChild(av);
+            }
+
+            if (isMe) {
+                const btn = document.createElement('button');
+                btn.className = 'reply-btn me-2 btn-reply-action';
+                btn.innerHTML = '<i class="bi bi-reply-fill"></i>';
+                btn.setAttribute('data-id', m.id);
+                btn.setAttribute('data-sender', 'You');
+                btn.setAttribute('data-content', m.content || '');
+                btn.setAttribute('data-type', m.attachment_type || '');
+                row.appendChild(btn);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'reply-btn me-2 btn-delete-action text-danger';
+                delBtn.innerHTML = '<i class="bi bi-trash-fill"></i>';
+                delBtn.title = 'Delete message';
+                delBtn.setAttribute('data-id', m.id);
+                row.appendChild(delBtn);
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            if (m.reply_to_id) {
+                const replyDiv = document.createElement('div');
+                replyDiv.className = 'replied-msg p-2 mb-2 rounded bg-light small';
+                replyDiv.style.borderLeft = '4px solid #0d6efd';
+                replyDiv.style.cursor = 'pointer';
+                replyDiv.style.opacity = '0.9';
+                replyDiv.onclick = () => {
+                     const el = document.querySelector(`[data-msg-id='${m.reply_to_id}']`);
+                     if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                };
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'fw-bold text-primary mb-1';
+                const otherName = document.querySelector('.chat-header-info h5') ? document.querySelector('.chat-header-info h5').textContent : 'Employer';
+                const isReplyMe = (m.reply_sender_id && Number(m.reply_sender_id) === meId);
+                nameDiv.textContent = isReplyMe ? 'You' : otherName;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'text-truncate text-muted';
+                contentDiv.style.maxWidth = '200px';
+                
+                if (m.reply_attachment_type === 'image') contentDiv.innerHTML = '<i class="bi bi-image"></i> Photo';
+                else if (m.reply_attachment_type === 'video') contentDiv.innerHTML = '<i class="bi bi-camera-video"></i> Video';
+                else if (m.reply_attachment_type === 'file') contentDiv.innerHTML = '<i class="bi bi-paperclip"></i> File';
+                else contentDiv.textContent = m.reply_content || '';
+                
+                replyDiv.appendChild(nameDiv);
+                replyDiv.appendChild(contentDiv);
+                bubble.appendChild(replyDiv);
+            }
+
+            const textDiv = document.createElement('div');
+            textDiv.textContent = m.content || '';
+            bubble.appendChild(textDiv);
+
+            const att = buildAttachmentNode(m);
+            if (att) {
+                const wrap = document.createElement('div');
+                wrap.className = 'mt-2';
+                wrap.appendChild(att);
+                bubble.appendChild(wrap);
+            }
+
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+            if (m.created_at) {
+                try {
+                    if (typeof window.__formatUtcToLocal === 'function') {
+                        meta.textContent = window.__formatUtcToLocal(m.created_at, 'time');
+                    } else {
+                        const d = (typeof window.__parseUtcDate === 'function') ? window.__parseUtcDate(m.created_at) : new Date(m.created_at);
+                        meta.textContent = Number.isNaN(d.getTime())
+                            ? ''
+                            : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+                } catch (_) {
+                    meta.textContent = '';
+                }
+            }
+            bubble.appendChild(meta);
+            row.appendChild(bubble);
+
+            if (!isMe) {
+                const otherName = document.querySelector('.chat-header-info h5') ? document.querySelector('.chat-header-info h5').textContent : 'Employer';
+                const btn = document.createElement('button');
+                btn.className = 'reply-btn ms-2 btn-reply-action';
+                btn.innerHTML = '<i class="bi bi-reply-fill"></i>';
+                btn.setAttribute('data-id', m.id);
+                btn.setAttribute('data-sender', otherName);
+                btn.setAttribute('data-content', m.content || '');
+                btn.setAttribute('data-type', m.attachment_type || '');
+                row.appendChild(btn);
+            }
+
+            if (isMe) {
+                const av = document.createElement('img');
+                av.className = 'msg-avatar';
+                av.alt = 'Me';
+                av.src = avatar;
+                row.appendChild(av);
+            }
+
+            threadEl.appendChild(row);
+        }
+
+        async function poll() {
+            if (!initialToId || !threadEl) return;
+            const url = `/freelancer/messages/poll?to=${encodeURIComponent(initialToId)}${initialJobId ? `&job=${encodeURIComponent(initialJobId)}` : ''}&afterId=${encodeURIComponent(lastId)}`;
+            const res = await fetch(url, { credentials: 'same-origin' });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data || !data.ok) return;
+
+            if (Array.isArray(data.messages) && data.messages.length) {
+                data.messages.forEach((m) => {
+                    appendMessage(m);
+                    const mid = Number(m.id) || 0;
+                    if (mid > lastId) lastId = mid;
+                });
+                scrollToBottom();
+            }
+
+            // Update Timer
+            if (data.timer && window.updateFreelancerTimer) {
+                window.updateFreelancerTimer(data.timer);
+            }
+
+            // Update Balance Header
+            if (data.balance !== undefined && data.balance !== null) {
+                const balEl = document.getElementById('headerBalanceValue');
+                if (balEl) {
+                    balEl.textContent = Number(data.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+            }
+
+            if (Array.isArray(data.ids)) {
+                const existing = new Set(data.ids.map((x) => Number(x)));
+                const nodes = threadEl.querySelectorAll('[data-msg-id]');
+                nodes.forEach((el) => {
+                    const mid = Number(el.getAttribute('data-msg-id'));
+                    if (mid && !existing.has(mid)) {
+                        el.remove();
+                    }
+                });
+            }
+        }
+
+        scrollToBottom();
+        setInterval(() => {
+            poll().catch(() => {});
+        }, 2000);
+    </script>
+</body>
+</html>

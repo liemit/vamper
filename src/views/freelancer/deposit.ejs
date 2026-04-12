@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vamper - Deposit Funds</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <%- include('../../public/header') %>
+
+        <main class="container-fluid py-4">
+            <div class="row">
+                <%- include('./layouts/menu') %>
+
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <div
+                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Deposit Funds</h1>
+                    </div>
+
+                    <% if (success_msg && success_msg.length > 0) { %>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <%= success_msg %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <% } %>
+                    
+                    <% if (error_msg && error_msg.length > 0) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <%= error_msg %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <% } %>
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 col-lg-6">
+                            <div class="card border-0 shadow-sm rounded-4">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title fw-bold mb-4">Select Payment Method</h5>
+
+                                    <form action="/freelancer/deposit" method="POST">
+                                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                                        <div class="mb-4">
+                                            <label class="form-label text-muted small fw-bold text-uppercase">Amount
+                                                (Credits)</label>
+                                            <div class="input-group input-group-lg">
+                                                <span class="input-group-text bg-light border-end-0 fw-bold"><i class="bi bi-gem text-primary"></i></span>
+                                                <input type="number" class="form-control border-start-0 ps-0 fw-bold"
+                                                    name="amount" placeholder="0.00" min="10" step="0.01" required id="amountInput">
+                                            </div>
+                                            <div class="form-text">Minimum deposit amount is 10 Credits</div>
+                                            <div class="mt-2 fw-bold text-primary" id="conversionText"></div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label
+                                                class="form-label text-muted small fw-bold text-uppercase mb-3">Payment
+                                                Method</label>
+
+                                            <div class="d-grid gap-3">
+                                                <% if (paymentMethods && paymentMethods.length > 0) { %>
+                                                    <% paymentMethods.forEach(function(method, index) { %>
+                                                        <label
+                                                            class="card border p-3 rounded-3 cursor-pointer hover-shadow transition-all">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input payment-radio" type="radio"
+                                                                        name="paymentMethodCode" id="method_<%= method.code %>" value="<%= method.code %>"
+                                                                        data-rate="<%= method.exchange_rate %>"
+                                                                        data-currency="<%= method.currency %>"
+                                                                        <%= index === 0 ? 'checked' : '' %>>
+                                                                </div>
+                                                                <div class="ms-3 flex-grow-1">
+                                                                    <div class="fw-bold d-flex align-items-center gap-2">
+                                                                        <%= method.name %>
+                                                                    </div>
+                                                                    <div class="text-muted small">Rate: 1 Credit = <%= Number(method.exchange_rate).toLocaleString() %> <%= method.currency %></div>
+                                                                </div>
+                                                                <% if (method.type === 'ewallet') { %>
+                                                                    <i class="bi bi-wallet2 fs-4 text-primary ms-auto"></i>
+                                                                <% } else if (method.type === 'bank_transfer') { %>
+                                                                    <i class="bi bi-bank fs-4 text-secondary ms-auto"></i>
+                                                                <% } else { %>
+                                                                    <i class="bi bi-credit-card fs-4 text-primary ms-auto"></i>
+                                                                <% } %>
+                                                            </div>
+                                                        </label>
+                                                    <% }); %>
+                                                <% } else { %>
+                                                    <div class="alert alert-warning">No payment methods available.</div>
+                                                <% } %>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                                Proceed to Payment <i class="bi bi-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="text-center mt-3">
+                                            <small class="text-muted"><i class="bi bi-shield-lock-fill me-1"></i>Secure
+                                                256-bit SSL encrypted payment</small>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </main>
+
+        <%- include('../../public/footer') %>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const amountInput = document.getElementById('amountInput');
+                const radios = document.querySelectorAll('.payment-radio');
+                const conversionText = document.getElementById('conversionText');
+
+                function updateConversion() {
+                    const amount = parseFloat(amountInput.value) || 0;
+                    let rate = 1;
+                    let currency = 'USD';
+                    
+                    radios.forEach(r => {
+                        if (r.checked) {
+                            rate = parseFloat(r.getAttribute('data-rate'));
+                            currency = r.getAttribute('data-currency');
+                        }
+                    });
+
+                    if (amount > 0) {
+                        const total = amount * rate;
+                        conversionText.textContent = `You will pay: ${total.toLocaleString()} ${currency}`;
+                    } else {
+                        conversionText.textContent = '';
+                    }
+                }
+
+                amountInput.addEventListener('input', updateConversion);
+                radios.forEach(r => r.addEventListener('change', updateConversion));
+                
+                // Init
+                updateConversion();
+            });
+        </script>
+</body>
+
+</html>

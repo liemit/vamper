@@ -1,0 +1,743 @@
+<header class="shadow-sm bg-white sticky-top">
+<script>window.__CSRF__ = '<%= csrfToken %>';window.__UPLOAD_BASE__ = '<%= uploadBaseUrl %>';</script>
+    <nav class="navbar navbar-expand-lg navbar-light container py-3">
+        <div class="d-flex w-100 justify-content-between align-items-center d-lg-none">
+            <a class="navbar-brand d-flex align-items-center fw-bold text-primary fs-3" href="#">
+                <i class="bi bi-code-square me-2"></i> Vamper
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                <!-- Admin sidebar toggle: only shows on admin pages -->
+                <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+                <button class="btn btn-sm btn-outline-secondary admin-sidebar-btn" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar"
+                    aria-label="Toggle admin menu">
+                    <i class="bi bi-layout-sidebar"></i>
+                </button>
+                <% } %>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavOffcanvas"
+                    aria-controls="mobileNavOffcanvas" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <a class="navbar-brand d-none d-lg-flex align-items-center fw-bold text-primary fs-3" href="#">
+            <i class="bi bi-code-square me-2"></i> Vamper
+        </a>
+
+        <div class="navbar-collapse d-none d-lg-block" id="navbarNav">
+            <style>
+                .dropdown-submenu {
+                    position: relative;
+                }
+
+                .dropdown-submenu>.dropdown-menu {
+                    top: 0;
+                    left: 100%;
+                    margin-top: -0.25rem;
+                }
+
+                @media (max-width: 991.98px) {
+                    .dropdown-submenu>.dropdown-menu {
+                        left: 0;
+                        margin-left: 1rem;
+                    }
+
+                    header .navbar {
+                        padding-top: 0.75rem;
+                        padding-bottom: 0.75rem;
+                    }
+
+                    header .navbar-collapse {
+                        margin-top: 0.75rem;
+                    }
+
+                    header .navbar-nav {
+                        width: 100%;
+                    }
+
+                    header .navbar-nav .nav-item {
+                        width: 100%;
+                        margin-right: 0 !important;
+                    }
+
+                    header .navbar-nav .nav-link,
+                    header .navbar-nav .dropdown-item,
+                    header .navbar-nav .btn {
+                        width: 100%;
+                        text-align: left;
+                    }
+
+                    header .navbar-nav .nav-link {
+                        padding-top: 0.65rem;
+                        padding-bottom: 0.65rem;
+                    }
+
+                    header .navbar-nav .dropdown-menu {
+                        width: 100%;
+                        max-width: 100%;
+                    }
+
+                    header .navbar-nav .dropdown-submenu>.dropdown-menu {
+                        margin-left: 0;
+                        padding-left: 0.75rem;
+                    }
+
+                    header #notificationDropdown + .dropdown-menu,
+                    header #notificationDropdown ~ .dropdown-menu {
+                        width: min(92vw, 360px) !important;
+                        max-height: min(60vh, 420px) !important;
+                        overflow-y: auto;
+                    }
+
+                    header .offcanvas {
+                        width: min(92vw, 420px);
+                    }
+
+                    header .offcanvas .nav-link,
+                    header .offcanvas .btn {
+                        padding-top: 0.65rem;
+                        padding-bottom: 0.65rem;
+                    }
+
+                    header .offcanvas .dropdown-toggle {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.75rem;
+                    }
+
+                    header .offcanvas .dropdown-toggle::after {
+                        margin-left: 0.5rem;
+                    }
+
+                    header .offcanvas .mobile-lang-code {
+                        margin-left: auto;
+                    }
+                }
+            </style>
+
+            <% function renderNavItems(items, isSubmenu) { %>
+                <% if (!items || items.length === 0) { %>
+                    <% return; %>
+                <% } %>
+                <% items.forEach(function(it) { %>
+                    <% const labelKeyMap = { 'home': 'nav.home', 'jobs': 'nav.jobs', 'how it works': 'nav.how_it_works', 'pricing': 'nav.pricing', 'contact': 'nav.contact', 'policy': 'nav.policy' }; %>
+                    <% const rawLabel = (it && it.label !== undefined && it.label !== null) ? String(it.label) : ''; %>
+                    <% const normalizedLabel = rawLabel.toLowerCase().trim(); %>
+                    <% const labelKey = labelKeyMap[normalizedLabel]; %>
+                    <% const displayLabel = (typeof t === 'function' && labelKey) ? t(labelKey, rawLabel) : rawLabel; %>
+                    <% if (it.item_type === 'divider') { %>
+                        <li><hr class="dropdown-divider"></li>
+                    <% } else if (it.item_type === 'header') { %>
+                        <li><h6 class="dropdown-header"><%= displayLabel %></h6></li>
+                    <% } else if (it.children && it.children.length) { %>
+                        <% if (isSubmenu) { %>
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <% if (it.icon) { %><i class="bi <%= it.icon %> me-2"></i><% } %><%= displayLabel %>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <% renderNavItems(it.children, true); %>
+                                </ul>
+                            </li>
+                        <% } else { %>
+                            <% const parentHref = it.url ? it.url : (it.route_name ? ('/' + it.route_name) : '#'); %>
+                            <li class="nav-item dropdown me-3 d-flex align-items-center">
+                                <a class="nav-link" href="<%= parentHref %>" target="<%= it.target || '_self' %>">
+                                    <% if (it.icon) { %><i class="bi <%= it.icon %> me-1"></i><% } %><%= displayLabel %>
+                                </a>
+                                <button class="btn btn-link nav-link dropdown-toggle p-0 ms-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Toggle <%= displayLabel %> menu"></button>
+                                <ul class="dropdown-menu">
+                                    <% renderNavItems(it.children, true); %>
+                                </ul>
+                            </li>
+                        <% } %>
+                    <% } else { %>
+                        <% const href = it.url ? it.url : (it.route_name ? ('/' + it.route_name) : '#'); %>
+                        <% if (isSubmenu) { %>
+                            <li>
+                                <a class="dropdown-item" href="<%= href %>" target="<%= it.target || '_self' %>">
+                                    <% if (it.icon) { %><i class="bi <%= it.icon %> me-2"></i><% } %><%= displayLabel %>
+                                </a>
+                            </li>
+                        <% } else { %>
+                            <li class="nav-item me-3">
+                                <a class="nav-link" href="<%= href %>" target="<%= it.target || '_self' %>">
+                                    <% if (it.icon) { %><i class="bi <%= it.icon %> me-1"></i><% } %><%= displayLabel %>
+                                </a>
+                            </li>
+                        <% } %>
+                    <% } %>
+                <% }) %>
+            <% } %>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fw-semibold">
+                <% if (typeof mainNavItems !== 'undefined' && mainNavItems && mainNavItems.length) { %>
+                    <% renderNavItems(mainNavItems, false); %>
+                <% } %>
+                <li class="nav-item dropdown">
+                    <% const currentLang = (typeof lang !== 'undefined' && lang) ? String(lang) : 'en'; %>
+                    <button class="btn btn-outline-secondary border-0 dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-globe"></i>
+                        <span class="ms-1 text-uppercase small"><%= currentLang %></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <% const curPath = (typeof req !== 'undefined' && req && req.originalUrl) ? String(req.originalUrl) : '/'; %>
+                        <% const hasLang = curPath.match(/([?&])lang=/i); %>
+                        <% const joiner = curPath.includes('?') ? '&' : '?'; %>
+                        <% const langHref = (code) => (hasLang ? curPath.replace(/([?&])lang=[^&]*/i, '$1lang=' + code) : (curPath + joiner + 'lang=' + code)); %>
+                        <li><a class="dropdown-item <%= currentLang === 'en' ? 'active' : '' %>" href="<%= langHref('en') %>"><%= (typeof t === 'function') ? t('langs.en', 'English') : 'English' %></a></li>
+                        <li><a class="dropdown-item <%= currentLang === 'fr' ? 'active' : '' %>" href="<%= langHref('fr') %>"><%= (typeof t === 'function') ? t('langs.fr', 'Français') : 'Français' %></a></li>
+                        <li><a class="dropdown-item <%= currentLang === 'vi' ? 'active' : '' %>" href="<%= langHref('vi') %>"><%= (typeof t === 'function') ? t('langs.vi', 'Tiếng Việt') : 'Tiếng Việt' %></a></li>
+                    </ul>
+                </li>
+
+                <% const currencyParam = (typeof query !== 'undefined' && query && query.currency) ? String(query.currency).toLowerCase() : (typeof currency !== 'undefined' ? String(currency).toLowerCase() : 'usd'); %>
+                <% const currencyLabel = 'Credits'; %>
+                <% const currencySymbol = ''; %>
+
+                <% if (user) { %>
+                    <% const rawBalance = (user && user.balance !== undefined && user.balance !== null) ? Number(user.balance) : 0; %>
+                    <% const safeBalance = Number.isFinite(rawBalance) ? rawBalance : 0; %>
+                    <% const balanceDigits = 2; %>
+                    <% const formattedBalance = safeBalance.toLocaleString('en-US', { minimumFractionDigits: balanceDigits, maximumFractionDigits: balanceDigits }); %>
+                    <li class="nav-item d-flex align-items-center me-2">
+                        <span class="badge rounded-pill bg-light text-dark border fw-semibold" id="header-balance" data-currency-symbol="">
+                            <i class="bi bi-gem text-primary me-1" title="Credits"></i><span id="headerBalanceValue"><%= formattedBalance %></span>
+                        </span>
+                    </li>
+
+                    <!-- Notification Bell -->
+                    <li class="nav-item dropdown me-2 d-flex align-items-center">
+                        <a class="nav-link position-relative d-inline-block" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationDropdown">
+                            <i class="bi bi-bell fs-5"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notificationCount" style="transform: translate(-50%, -30%) !important;">
+                                0
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg p-0 border-0" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                            <li class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top">
+                                <span class="fw-bold small text-uppercase text-muted ms-2">Notifications</span>
+                                <button class="btn btn-sm btn-link text-decoration-none" type="button" id="markAllReadBtn">Mark all read</button>
+                            </li>
+                            <div id="notificationList">
+                                <!-- Notifications will be loaded here -->
+                                <li class="text-center p-3 text-muted">No new notifications</li>
+                            </div>
+                            <li class="border-top bg-white">
+                                <% const notificationsHref = (user && user.role === 'employer') ? '/employer/notifications' : '/freelancer/notifications'; %>
+                                <a class="dropdown-item text-center fw-semibold py-2" href="<%= notificationsHref %>">See More</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <% const accountInfoHref = (user.role === 'freelancer') ? '/freelancer/dashboard' : `/${user.role}`; %>
+                    <% const settingsHref = (user.role === 'freelancer') ? '/freelancer/profile#pane-settings' : '/employer/company-profile#pane-settings'; %>
+                    <li class="nav-item dropdown dropdown-hover">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="user-avatar rounded-circle d-inline-flex align-items-center justify-content-center">
+                                <i class="bi bi-person-circle"></i>
+                            </span>
+                            <span class="user-name"><%= user.displayName || user.email %></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <% const depositHref = (user.role === 'employer') ? '/employer/deposit' : (user.role === 'freelancer' ? '/freelancer/deposit' : '#'); %>
+                            <li><a class="dropdown-item" href="<%= depositHref %>"><i class="bi bi-wallet2 me-2"></i>Top up</a></li>
+                            <li><a class="dropdown-item" href="<%= accountInfoHref %>"><i class="bi bi-person-vcard me-2"></i>Account info</a></li>
+                            <li><a class="dropdown-item" href="<%= settingsHref %>"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Log out</a></li>
+                        </ul>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                        <div class="dropdown">
+                            <button class="btn btn-primary fw-bold px-4 py-2 shadow-sm dropdown-toggle text-white" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #0d6efd !important; border-color: #0d6efd !important; opacity: 1 !important; color: #fff !important;">
+                                <%= (typeof t === 'function') ? t('auth.login', 'Log in') : 'Log in' %>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                <li><a class="dropdown-item py-2" href="/login?role=freelancer">Freelancer / Student</a></li>
+                                <li><a class="dropdown-item py-2" href="/login?role=employer">Employer / Client</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary fw-bold px-4 py-2 dropdown-toggle bg-white text-primary" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #0d6efd !important;">
+                                <%= (typeof t === 'function') ? t('auth.signup', 'Sign up') : 'Sign up' %>
+                            </button>
+                            <style>
+                                header .navbar .btn:hover,
+                                header .navbar .btn:focus,
+                                header .navbar .btn:active,
+                                header .offcanvas .btn:hover,
+                                header .offcanvas .btn:focus,
+                                header .offcanvas .btn:active {
+                                    opacity: 1 !important;
+                                    filter: none !important;
+                                }
+                                .btn-outline-primary.dropdown-toggle:hover, 
+                                .btn-outline-primary.dropdown-toggle:focus,
+                                .btn-outline-primary.dropdown-toggle[aria-expanded="true"] {
+                                    background-color: #0d6efd !important;
+                                    color: #fff !important;
+                                }
+                            </style>
+                            <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                <li><a class="dropdown-item py-2" href="/register?role=freelancer">Freelancer / Student</a></li>
+                                <li><a class="dropdown-item py-2" href="/register?role=employer">Employer / Client</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end d-lg-none" tabindex="-1" id="mobileNavOffcanvas" aria-labelledby="mobileNavOffcanvasLabel"
+        data-bs-scroll="false" data-bs-backdrop="true">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold text-primary" id="mobileNavOffcanvasLabel">
+                <i class="bi bi-code-square me-2"></i>Vamper
+            </h5>
+            <div class="d-flex align-items-center">
+                <% if (user) { %>
+                    <% const mobileRawBalanceHeader = (user && user.balance !== undefined && user.balance !== null) ? Number(user.balance) : 0; %>
+                    <% const mobileSafeBalanceHeader = Number.isFinite(mobileRawBalanceHeader) ? mobileRawBalanceHeader : 0; %>
+                    <% const mobileFormattedBalanceHeader = mobileSafeBalanceHeader.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); %>
+                    <span class="badge rounded-pill bg-light text-dark border fw-semibold d-inline-flex align-items-center me-3" id="headerBalanceValueMobileHeader">
+                        <i class="bi bi-gem text-primary me-1" title="Credits"></i><span id="mobileHeaderBalanceAmount"><%= mobileFormattedBalanceHeader %></span>
+                    </span>
+                <% } %>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="offcanvas-body pt-0">
+            <ul class="navbar-nav fw-semibold">
+                <% if (typeof mainNavItems !== 'undefined' && mainNavItems && mainNavItems.length) { %>
+                    <% renderNavItems(mainNavItems, false); %>
+                <% } %>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li class="nav-item dropdown">
+                    <% const mobileCurrentLang = (typeof lang !== 'undefined' && lang) ? String(lang) : 'en'; %>
+                    <button class="btn btn-outline-secondary border-0 dropdown-toggle w-100" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="d-inline-flex align-items-center">
+                            <i class="bi bi-globe"></i>
+                            <span class="ms-2">Language</span>
+                        </span>
+                        <span class="mobile-lang-code text-uppercase small"><%= mobileCurrentLang %></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <% const mobileCurPath = (typeof req !== 'undefined' && req && req.originalUrl) ? String(req.originalUrl) : '/'; %>
+                        <% const mobileHasLang = mobileCurPath.match(/([?&])lang=/i); %>
+                        <% const mobileJoiner = mobileCurPath.includes('?') ? '&' : '?'; %>
+                        <% const mobileLangHref = (code) => (mobileHasLang ? mobileCurPath.replace(/([?&])lang=[^&]*/i, '$1lang=' + code) : (mobileCurPath + mobileJoiner + 'lang=' + code)); %>
+                        <li><a class="dropdown-item <%= mobileCurrentLang === 'en' ? 'active' : '' %>" href="<%= mobileLangHref('en') %>"><%= (typeof t === 'function') ? t('langs.en', 'English') : 'English' %></a></li>
+                        <li><a class="dropdown-item <%= mobileCurrentLang === 'fr' ? 'active' : '' %>" href="<%= mobileLangHref('fr') %>"><%= (typeof t === 'function') ? t('langs.fr', 'Français') : 'Français' %></a></li>
+                        <li><a class="dropdown-item <%= mobileCurrentLang === 'vi' ? 'active' : '' %>" href="<%= mobileLangHref('vi') %>"><%= (typeof t === 'function') ? t('langs.vi', 'Tiếng Việt') : 'Tiếng Việt' %></a></li>
+                    </ul>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <% if (user) { %>
+                    <% const mobileRawBalance = (user && user.balance !== undefined && user.balance !== null) ? Number(user.balance) : 0; %>
+                    <% const mobileSafeBalance = Number.isFinite(mobileRawBalance) ? mobileRawBalance : 0; %>
+                    <% const mobileBalanceDigits = 2; %>
+                    <% const mobileFormattedBalance = mobileSafeBalance.toLocaleString('en-US', { minimumFractionDigits: mobileBalanceDigits, maximumFractionDigits: mobileBalanceDigits }); %>
+                    <% const notificationsHref = (user && user.role === 'employer') ? '/employer/notifications' : '/freelancer/notifications'; %>
+                    <% const accountInfoHref = (user && user.role === 'employer') ? '/employer/company-profile' : '/freelancer/profile'; %>
+                    <!-- <li class="nav-item">
+                        <span class="badge rounded-pill bg-light text-dark border fw-semibold d-inline-flex align-items-center" id="header-balance-mobile" data-currency-symbol="">
+                            <i class="bi bi-gem text-primary me-1" title="Credits"></i><span><%= mobileFormattedBalance %></span>
+                        </span>
+                    </li> -->
+                    <li class="nav-item"><a class="nav-link" href="<%= notificationsHref %>"><i class="bi bi-bell me-2"></i>Notifications</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= accountInfoHref %>"><i class="bi bi-person-vcard me-2"></i>Account info</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Log out</a></li>
+                <% } else { %>
+                    <li class="nav-item dropdown mt-2">
+                        <button class="btn btn-primary fw-bold w-100 dropdown-toggle text-white" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #0d6efd !important; border-color: #0d6efd !important;">
+                            <%= (typeof t === 'function') ? t('auth.login', 'Log in') : 'Log in' %>
+                        </button>
+                        <ul class="dropdown-menu mt-2 w-100">
+                            <li><a class="dropdown-item py-2" href="/login?role=freelancer">Freelancer / Student</a></li>
+                            <li><a class="dropdown-item py-2" href="/login?role=employer">Employer / Client</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown mt-2">
+                        <button class="btn btn-outline-primary fw-bold w-100 dropdown-toggle bg-white text-primary" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #0d6efd !important;">
+                            <%= (typeof t === 'function') ? t('auth.signup', 'Sign up') : 'Sign up' %>
+                        </button>
+                        <ul class="dropdown-menu mt-2 w-100">
+                            <li><a class="dropdown-item py-2" href="/register?role=freelancer">Freelancer / Student</a></li>
+                            <li><a class="dropdown-item py-2" href="/register?role=employer">Employer / Client</a></li>
+                        </ul>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<script>
+// Fix Bootstrap offcanvas body padding-right compensation on mobile
+(function() {
+    var el = document.getElementById('mobileNavOffcanvas');
+    if (!el) return;
+
+    function lockBody() {
+        var scrollY = window.scrollY;
+        document.body.style.setProperty('padding-right', '0px', 'important');
+        document.body.style.setProperty('overflow', 'hidden', 'important');
+        document.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
+        // Prevent layout shift
+        document.body.setAttribute('data-scroll-y', scrollY);
+    }
+
+    function unlockBody() {
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
+        document.documentElement.style.removeProperty('overflow-x');
+    }
+
+    el.addEventListener('show.bs.offcanvas', lockBody);
+    el.addEventListener('shown.bs.offcanvas', lockBody); // re-apply after Bootstrap sets it
+    el.addEventListener('hidden.bs.offcanvas', unlockBody);
+
+    // MutationObserver to catch Bootstrap's inline style injection
+    var observer = new MutationObserver(function() {
+        if (el.classList.contains('show') || document.body.classList.contains('offcanvas-backdrop')) {
+            if (document.body.style.paddingRight && document.body.style.paddingRight !== '0px') {
+                document.body.style.setProperty('padding-right', '0px', 'important');
+            }
+        }
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+})();
+</script>
+
+<% if (user) { %>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        refreshUnreadCount();
+        loadNotifications();
+
+        const markAllBtn = document.getElementById('markAllReadBtn');
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', function(e) {
+                if (typeof window.markAllRead === 'function') {
+                    return window.markAllRead(e);
+                }
+            });
+        }
+
+        const list = document.getElementById('notificationList');
+        if (list) {
+            list.addEventListener('click', function(e) {
+                const a = e.target && e.target.closest ? e.target.closest('a[data-notification-id]') : null;
+                if (!a) return;
+                const id = a.getAttribute('data-notification-id');
+                const link = a.getAttribute('data-notification-url') || '#';
+                window.handleNotificationClick(e, id, link);
+            });
+        }
+
+        // Listen for Bootstrap Dropdown 'show' event to reload content
+        const notificationDropdownEl = document.getElementById('notificationDropdown');
+        if (notificationDropdownEl) {
+            notificationDropdownEl.addEventListener('show.bs.dropdown', function () {
+                loadNotifications();
+            });
+        }
+
+        setInterval(function() {
+            refreshUnreadCount();
+        }, 20000);
+
+        try {
+            if (typeof window.__formatAllLocalDates === 'function') {
+                window.__formatAllLocalDates();
+            }
+        } catch (_) {}
+    });
+
+    const __csrfToken = <%- JSON.stringify((typeof csrfToken !== "undefined" && csrfToken) ? String(csrfToken) : "") %>;
+
+    function getCsrfHeaders() {
+        if (!__csrfToken) return {};
+        return {
+            'CSRF-Token': __csrfToken,
+            'X-CSRF-Token': __csrfToken,
+            'csrf-token': __csrfToken,
+            'x-csrf-token': __csrfToken
+        };
+    }
+
+    async function refreshUnreadCount() {
+        try {
+            const res = await fetch('/notifications/unread-count');
+            const data = await res.json();
+            const unread = data && data.unread !== undefined ? Number(data.unread) : 0;
+            const countBadge = document.getElementById('notificationCount');
+            if (!countBadge) return;
+
+            if (Number.isFinite(unread) && unread > 0) {
+                countBadge.textContent = String(unread);
+                countBadge.classList.remove('d-none');
+            } else {
+                countBadge.textContent = '0';
+                countBadge.classList.add('d-none');
+            }
+        } catch (error) {
+            console.error('Error loading notification count:', error);
+        }
+    }
+
+    // Auto-poll notifications count every 3 seconds for near real-time experience
+    setInterval(refreshUnreadCount, 3000);
+
+    async function loadNotifications() {
+        try {
+            const response = await fetch('/notifications?limit=20');
+            const notifications = await response.json();
+            
+            const list = document.getElementById('notificationList');
+            const countBadge = document.getElementById('notificationCount');
+            if (!list) return;
+            
+            if (notifications.length > 0) {
+                refreshUnreadCount();
+                
+                list.innerHTML = notifications.map(n => `
+                    <li>
+                        <a class="dropdown-item p-3 border-bottom position-relative ${n.is_read ? '' : 'bg-light'}" href="#" data-notification-id="${n.id}" data-notification-url="${(n.url || '#').replace(/"/g, '&quot;')}">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3 mt-1">
+                                    ${getIconByType(n.type)}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">${n.title ? n.title : ''}</div>
+                                    <div class="small text-muted">${n.body ? n.body : ''}</div>
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-clock me-1"></i>${formatDate(n.created_at)}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                `).join('');
+
+                try {
+                    if (typeof window.__formatAllLocalDates === 'function') {
+                        window.__formatAllLocalDates();
+                    }
+                } catch (_) {}
+            } else {
+                if (countBadge) countBadge.classList.add('d-none');
+                list.innerHTML = '<li class="text-center p-3 text-muted">No new notifications</li>';
+            }
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+            const list = document.getElementById('notificationList');
+            if (list) {
+                list.innerHTML = '<li class="text-center p-3 text-danger">Failed to load notifications</li>';
+            }
+        }
+    }
+
+    function formatDate(dateString) {
+        try {
+            if (!dateString) return '';
+            const d = (typeof window.__parseUtcDate === 'function')
+                ? window.__parseUtcDate(dateString)
+                : new Date(dateString);
+            if (Number.isNaN(d.getTime())) return '';
+            return d.toLocaleString();
+        } catch (e) {
+            return '';
+        }
+    }
+
+    window.__parseUtcDate = function(value) {
+        try {
+            if (!value) return new Date(NaN);
+            // mysql2 can return DATETIME columns as JS Date objects depending on config.
+            // Those Date objects are commonly constructed as *local time* (no timezone info).
+            // We want to interpret stored DB timestamps as UTC, so we rebuild a Date from
+            // the local components as UTC.
+            if (value instanceof Date) {
+                return new Date(Date.UTC(
+                    value.getFullYear(),
+                    value.getMonth(),
+                    value.getDate(),
+                    value.getHours(),
+                    value.getMinutes(),
+                    value.getSeconds(),
+                    value.getMilliseconds()
+                ));
+            }
+            const raw = String(value).trim();
+            if (!raw) return new Date(NaN);
+            if (/z$/i.test(raw) || /[+-]\d{2}:?\d{2}$/.test(raw)) {
+                return new Date(raw);
+            }
+            // Any bare datetime without timezone (MySQL: "YYYY-MM-DD HH:mm:ss[.uuuuuu]" or ISO: "YYYY-MM-DDTHH:mm:ss[.uuu]")
+            // should be treated as UTC to avoid timezone drift across countries.
+            if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(raw)) {
+                return new Date(raw.replace(' ', 'T') + 'Z');
+            }
+            return new Date(raw);
+        } catch (_) {
+            return new Date(NaN);
+        }
+    };
+
+    window.__formatUtcToLocal = function(value, kind) {
+        try {
+            const d = window.__parseUtcDate(value);
+            if (Number.isNaN(d.getTime())) return '';
+            if (kind === 'date') return d.toLocaleDateString();
+            if (kind === 'time') return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return d.toLocaleString();
+        } catch (_) {
+            return '';
+        }
+    };
+
+    window.__formatAllLocalDates = function() {
+        try {
+            const nodes = document.querySelectorAll('.js-local-dt[data-utc]');
+            nodes.forEach(function(el) {
+                const utc = el.getAttribute('data-utc');
+                const kind = el.getAttribute('data-kind') || 'datetime';
+                const text = window.__formatUtcToLocal(utc, kind);
+                if (text) el.textContent = text;
+            });
+        } catch (_) {}
+    };
+
+    function getIconByType(type) {
+        switch(type) {
+            case 'success': return '<i class="bi bi-check-circle-fill text-success fs-5"></i>';
+            case 'warning': return '<i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i>';
+            case 'error': return '<i class="bi bi-x-circle-fill text-danger fs-5"></i>';
+            default: return '<i class="bi bi-info-circle-fill text-primary fs-5"></i>';
+        }
+    }
+
+    window.markAllRead = async function(event) {
+        event.preventDefault();
+        if (!confirm('Mark all notifications as read?')) {
+            return;
+        }
+        try {
+            const response = await fetch('/notifications/read-all', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getCsrfHeaders()
+                },
+                body: JSON.stringify({ _csrf: __csrfToken })
+            });
+
+            if (!response.ok) {
+                let msg = 'Failed to mark all as read';
+                try {
+                    const data = await response.json();
+                    if (data && data.error) msg = String(data.error);
+                } catch (e) {}
+                throw new Error(msg);
+            }
+
+            await loadNotifications();
+            await refreshUnreadCount();
+            
+        } catch (error) {
+            console.error('Failed to mark all as read:', error);
+            alert(error && error.message ? error.message : 'Failed to mark all as read');
+        }
+    };
+
+    window.handleNotificationClick = async function(event, id, link) {
+        event.preventDefault();
+        try {
+            await fetch('/notifications/read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
+                body: JSON.stringify({ id, _csrf: __csrfToken })
+            });
+            if (link && link !== '#') {
+                window.location.href = link;
+            } else {
+                loadNotifications();
+            }
+            refreshUnreadCount();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+</script>
+<% } %>
+
+<!-- Loading Overlay -->
+<style>
+#vamper-loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.85);
+    z-index: 99999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+#vamper-loading-overlay.active { display: flex; }
+.vamper-spinner {
+    width: 48px; height: 48px;
+    border: 4px solid #e0e7ff;
+    border-top-color: #0d6efd;
+    border-radius: 50%;
+    animation: vamper-spin 0.7s linear infinite;
+    margin-bottom: 16px;
+}
+@keyframes vamper-spin { to { transform: rotate(360deg); } }
+</style>
+
+<div id="vamper-loading-overlay">
+    <div class="text-primary fw-bold fs-3 mb-3 d-flex align-items-center gap-2">
+        <i class="bi bi-code-square"></i> Vamper
+    </div>
+    <div class="vamper-spinner"></div>
+    <div class="text-primary fw-semibold small">Please wait...</div>
+</div>
+
+<script>
+(function() {
+    function showLoading() {
+        document.getElementById('vamper-loading-overlay').classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Login & Register forms
+        document.querySelectorAll('form[action="/login"], form[action="/register"], form[action="/logout"]').forEach(function(form) {
+            form.addEventListener('submit', showLoading);
+        });
+
+        // Logout links
+        document.querySelectorAll('a[href="/logout"]').forEach(function(a) {
+            a.addEventListener('click', showLoading);
+        });
+    });
+})();
+</script>

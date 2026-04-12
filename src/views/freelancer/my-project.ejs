@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects - Vamper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('../../public/header') %>
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row">
+            <%- include('./layouts/menu') %>
+            <section class="col-md-9 ms-sm-auto col-lg-10 px-2 px-md-4">
+                <% if (success_msg && success_msg.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <%= success_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                <% if (error_msg && error_msg.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <%= error_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                <div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">My Projects</h1>
+                </div>
+                <% const list = (typeof proposals !== 'undefined' && Array.isArray(proposals)) ? proposals : []; %>
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0 d-flex align-items-center justify-content-between">
+                        <div class="h5 mb-0">Applied Jobs</div>
+                        <div class="text-muted small">Total: <span class="fw-semibold text-dark"><%= list.length %></span></div>
+                    </div>
+                    <div class="card-body p-0">
+                        <% if (!list.length) { %>
+                            <div class="p-4">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                                        <i class="bi bi-inbox text-secondary"></i>
+                                    </div>
+                                    <div class="text-muted">You haven't applied to any job yet.</div>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Job</th>
+                                            <th class="text-end">Bid</th>
+                                            <th>Status</th>
+                                            <th>Applied</th>
+                                            <th class="text-end pe-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% list.forEach(function(pr) { %>
+                                            <% const status = pr && pr.status ? String(pr.status) : 'pending'; %>
+                                            <% const isDeposited = (typeof pr.is_deposited !== 'undefined') ? Number(pr.is_deposited) : 0; %>
+                                            <% let badgeClass = status === 'accepted' ? 'bg-success-subtle text-success-emphasis' : (status === 'rejected' ? 'bg-danger-subtle text-danger-emphasis' : 'bg-warning-subtle text-warning-emphasis'); %>
+                                            <% 
+                                                let displayStatus = status;
+                                                if (isDeposited === 1) {
+                                                    displayStatus = 'deposited';
+                                                    badgeClass = 'bg-info-subtle text-info-emphasis';
+                                                } else if (isDeposited === 2) {
+                                                    displayStatus = 'paid';
+                                                    badgeClass = 'bg-primary-subtle text-primary-emphasis';
+                                                }
+                                            %>
+                                            <tr>
+                                                <td class="ps-4" style="max-width: 360px;">
+                                                    <div class="fw-semibold text-truncate"><%= pr.job_title ? pr.job_title : ('Job #' + (pr.job_id || '')) %></div>
+                                                    <div class="text-muted small text-truncate"><%= pr.company_name ? pr.company_name : (pr.employer_name ? pr.employer_name : '') %></div>
+                                                </td>
+                                                <td class="text-end"><%- (pr.bid_amount !== undefined && pr.bid_amount !== null) ? ('<i class="bi bi-gem text-primary"></i> ' + Number(pr.bid_amount).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })) : '-' %></td>
+                                                <td><span class="badge <%= badgeClass %>"><%= displayStatus %></span></td>
+                                                <td><%= pr.created_at ? new Date(pr.created_at).toLocaleDateString() : '' %></td>
+                                                <td class="text-end pe-4">
+                                                    <% if (pr.job_type === 'hourly' && (status === 'accepted' || isDeposited === 1)) { %>
+                                                        <!-- Timesheets functionality disabled as timer is used for billing -->
+                                                        <!-- <a class="btn btn-sm btn-warning text-dark me-1" href="/freelancer/timesheets/<%= pr.proposal_id %>"><i class="bi bi-clock me-1"></i> Log Work</a> -->
+                                                    <% } %>
+                                                    <% if (isDeposited === 1 || isDeposited === 2) { %>
+                                                        <a class="btn btn-sm btn-outline-primary" href="/freelancer/messages?to=<%= pr.employer_id %>&job=<%= pr.job_id %>"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+                                                        <a class="btn btn-sm btn-outline-secondary" href="/freelancer/jobs/<%= pr.job_slug %>">View Job</a>
+                                                    <% } else { %>
+                                                        <a class="btn btn-sm btn-outline-primary" href="/freelancer/jobs/<%= pr.job_slug %>">View</a>
+                                                        <form method="POST" action="/freelancer/proposals/<%= pr.proposal_id %>/delete?_csrf=<%= csrfToken %>" class="d-inline" onsubmit="return confirm('Are you sure you want to withdraw this proposal?');">
+                                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger ms-1">Delete</button>
+                                                        </form>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

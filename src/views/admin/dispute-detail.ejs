@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vamper - Dispute Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body class="admin-page">
+    <%- include('../../public/header') %>
+
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row g-3">
+            <aside class="col-12 col-md-3 col-lg-2">
+                <%- include('./layouts/menu') %>
+            </aside>
+
+            <section class="col-12 col-md-9 col-lg-10">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div>
+                        <h4 class="mb-1">Dispute #<%= dispute.id %></h4>
+                        <div class="text-muted small"><%= dispute.job_title || ('Job #' + dispute.job_id) %> • <%= dispute.category %></div>
+                    </div>
+                    <a class="btn btn-sm btn-outline-secondary" href="<%= basePath || '/admin/disputes' %>"><i class="bi bi-arrow-left"></i> Back</a>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-7">
+                        <div class="card shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                                    <% const s = String(dispute.status || 'open'); %>
+                                    <% const badge = s === 'open' ? 'bg-warning text-dark'
+                                        : (s === 'under_review' ? 'bg-info'
+                                        : (s === 'resolved' ? 'bg-success'
+                                        : (s === 'rejected' ? 'bg-secondary' : 'bg-light text-dark'))); %>
+                                    <span class="badge <%= badge %>"><%= s %></span>
+                                    <span class="text-muted small">Created:</span>
+                                    <span class="small js-local-dt" data-kind="datetime" data-utc="<%= dispute.created_at || '' %>"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="small text-muted">Reporter</div>
+                                    <div class="fw-semibold"><%= dispute.creator_name || dispute.creator_email || ('User #' + dispute.created_by) %> (<%= dispute.creator_role %>)</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="small text-muted">Reported user</div>
+                                    <div class="fw-semibold"><%= dispute.reported_name || dispute.reported_email || ('User #' + dispute.reported_user_id) %> (<%= dispute.reported_role %>)</div>
+                                    <div class="small text-muted">Active: <%= (dispute.reported_is_active ? 'Yes' : 'No') %>
+                                        <% if (dispute.reported_banned_until) { %>
+                                            • Banned until: <span class="js-local-dt" data-kind="datetime" data-utc="<%= dispute.reported_banned_until %>"></span>
+                                        <% } %>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="small text-muted">Message</div>
+                                    <div class="border rounded p-3" style="white-space: pre-wrap;"><%= dispute.message %></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="small text-muted">Evidence</div>
+                                    <% if (attachments && attachments.length) { %>
+                                        <div class="row g-2">
+                                            <% attachments.forEach((a) => { %>
+                                                <div class="col-6 col-md-4">
+                                                    <a href="<%= a.url %>" target="_blank" rel="noopener noreferrer">
+                                                        <img src="<%= a.url %>" alt="evidence" style="width:100%;height:140px;object-fit:cover;border-radius:12px;border:1px solid rgba(0,0,0,0.08);">
+                                                    </a>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="text-muted small">No evidence uploaded.</div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-5">
+                        <div class="card shadow-sm rounded-4 mb-3">
+                            <div class="card-body">
+                                <div class="fw-bold mb-2">Admin actions</div>
+
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/under-review' %>">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <button type="submit" class="btn btn-sm btn-outline-info">Mark under review</button>
+                                    </form>
+                                    <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/resolve' %>">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <input type="hidden" name="admin_note" value="Resolved by admin">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Resolve</button>
+                                    </form>
+                                    <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/reject' %>" onsubmit="return confirm('Reject this dispute?');">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <input type="hidden" name="admin_note" value="Rejected by admin">
+                                        <!-- <button type="submit" class="btn btn-sm btn-outline-secondary">Reject</button> -->
+                                    </form>
+                                </div>
+
+                                <div class="border-top pt-3">
+                                    <div class="fw-semibold mb-2">Ban / Unban</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/ban-temp' %>" class="d-flex gap-2 align-items-center">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <input type="number" name="days" class="form-control form-control-sm" value="7" min="1" max="365" style="width:110px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning">Ban temp</button>
+                                        </form>
+                                        <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/ban-perm' %>" onsubmit="return confirm('Ban user permanently?');">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Ban perm</button>
+                                        </form>
+                                        <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/unban' %>">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Unban</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="border-top pt-3 mt-3">
+                                    <div class="fw-semibold mb-2">Financial resolution</div>
+                                    <div class="text-muted small mb-2">Fixed: credits are applied to balances. Hourly: pending balance is adjusted (requires enough pending).</div>
+                                    <% const jt = (dispute && dispute.job_type) ? String(dispute.job_type).toLowerCase() : 'fixed_price'; %>
+                                    <% const suggestedAmount = (jt === 'hourly')
+                                        ? Number(dispute.proposal_pending_balance || 0)
+                                        : Number(dispute.proposal_bid_amount || 0); %>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/refund-employer' %>" class="d-flex gap-2 align-items-center">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <input type="number" step="0.01" name="amount" class="form-control form-control-sm" placeholder="Amount" style="width:140px;" value="<%= suggestedAmount %>" required>
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Refund employer?');">Refund employer</button>
+                                        </form>
+                                        <form method="POST" action="<%= (basePath || '/admin/disputes') + '/' + dispute.id + '/pay-freelancer' %>" class="d-flex gap-2 align-items-center">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <input type="number" step="0.01" name="amount" class="form-control form-control-sm" placeholder="Amount" style="width:140px;" value="<%= suggestedAmount %>" required>
+                                            <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Pay freelancer?');">Pay freelancer</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="fw-bold mb-2">Audit log</div>
+                                <% if (actions && actions.length) { %>
+                                    <div class="list-group list-group-flush">
+                                        <% actions.forEach((a) => { %>
+                                            <div class="list-group-item px-0">
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="fw-semibold"><%= a.action %></div>
+                                                    <div class="small text-muted js-local-dt" data-kind="datetime" data-utc="<%= a.created_at || '' %>"></div>
+                                                </div>
+                                                <div class="small text-muted"><%= a.admin_name || a.admin_email || '' %></div>
+                                                <% if (a.meta_json) { %>
+                                                    <pre class="small bg-light p-2 rounded mt-2 mb-0" style="white-space: pre-wrap;"><%= a.meta_json %></pre>
+                                                <% } %>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-muted small">No actions yet.</div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

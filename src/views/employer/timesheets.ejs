@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Timesheets - Vamper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('../../public/header') %>
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row">
+            <%- include('./layouts/menu') %>
+            <section class="col-md-9 ms-sm-auto col-lg-10 px-2 px-md-4">
+                <div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div>
+                        <h1 class="h2">Timesheets Review</h1>
+                        <div class="text-muted">
+                            Project: <span class="fw-bold"><%= proposal.title %></span> <br>
+                            Freelancer: <span class="fw-bold"><%= proposal.freelancer_name %></span>
+                        </div>
+                    </div>
+                    <div class="ms-auto text-end">
+                        <div class="fs-5 fw-bold text-primary d-flex align-items-center gap-2 justify-content-end">
+                            <span>$<%= Number(proposal.bid_amount).toLocaleString() %>/hr</span>
+                            <button class="btn btn-sm btn-outline-secondary border-0" onclick="updateRate('<%= proposal.id %>', '<%= proposal.bid_amount %>')" title="Renegotiate Rate">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </div>
+                        <a href="/employer/applications" class="btn btn-outline-secondary btn-sm mt-2">
+                            <i class="bi bi-arrow-left me-1"></i> Back to Applications
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-0">
+                        <% if (!timesheets || timesheets.length === 0) { %>
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-file-earmark-spreadsheet display-4 mb-3 d-block text-secondary opacity-50"></i>
+                                No timesheets submitted yet.
+                            </div>
+                        <% } else { %>
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Week Of</th>
+                                            <th class="text-end">Hours</th>
+                                            <th class="text-end">Amount</th>
+                                            <th>Description</th>
+                                            <th>Status</th>
+                                            <th class="text-end pe-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% timesheets.forEach(ts => { %>
+                                            <% 
+                                                let statusClass = 'bg-secondary-subtle text-secondary';
+                                                let statusLabel = ts.status;
+                                                
+                                                if (ts.status === 'approved') {
+                                                    statusClass = 'bg-info-subtle text-info-emphasis';
+                                                    statusLabel = 'Approved (Unpaid)';
+                                                }
+                                                if (ts.status === 'paid') {
+                                                    statusClass = 'bg-success-subtle text-success-emphasis';
+                                                    statusLabel = 'Paid';
+                                                }
+                                                if (ts.status === 'disputed') {
+                                                    statusClass = 'bg-danger-subtle text-danger-emphasis';
+                                                    statusLabel = 'Disputed';
+                                                }
+                                                if (ts.status === 'pending') {
+                                                    statusClass = 'bg-warning-subtle text-warning-emphasis';
+                                                    statusLabel = 'Pending Review';
+                                                }
+
+                                                // Use contract rate (bid_amount) if available, fallback to profile rate
+                                                const rate = Number(proposal.bid_amount) || Number(proposal.hourly_rate) || 0;
+                                                const amount = Number(ts.hours) * rate;
+                                            %>
+                                            <tr>
+                                                <td class="ps-4 fw-semibold"><%= new Date(ts.week_start).toLocaleDateString() %></td>
+                                                <td class="text-end fw-bold"><%= ts.hours %></td>
+                                                <td class="text-end text-muted"><i class="bi bi-gem text-primary"></i> <%= amount.toLocaleString() %></td>
+                                                <td style="max-width: 300px;">
+                                                    <div class="text-truncate" title="<%= ts.notes %>"><%= ts.notes %></div>
+                                                </td>
+                                                <td><span class="badge <%= statusClass %> text-uppercase" style="font-size: 0.75rem;"><%= statusLabel %></span></td>
+                                                <td class="text-end pe-4">
+                                                    <% if (ts.status === 'pending' || ts.status === 'disputed') { %>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <button class="btn btn-success" onclick="approveTimesheet('<%= ts.id %>', '<%= amount %>')">
+                                                                <i class="bi bi-check-lg me-1"></i>Pay
+                                                            </button>
+                                                            <button class="btn btn-outline-danger" onclick="rejectTimesheet('<%= ts.id %>')">
+                                                                <i class="bi bi-x-lg"></i>
+                                                            </button>
+                                                        </div>
+                                                    <% } else if (ts.status === 'approved') { %>
+                                                        <button class="btn btn-sm btn-success" onclick="approveTimesheet('<%= ts.id %>', '<%= amount %>')">
+                                                            <i class="bi bi-cash me-1"></i>Pay Now
+                                                        </button>
+                                                    <% } else { %>
+                                                        <span class="text-muted small"><i class="bi bi-check2-all me-1"></i>Completed</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const csrfToken = '<%= (typeof csrfToken !== "undefined" && csrfToken) ? csrfToken : "" %>';
+
+        async function updateRate(proposalId, currentRate) {
+            const newRateStr = prompt(`Current Hourly Rate: ${currentRate} Credits/hr\n\nEnter new hourly rate:`);
+            if (newRateStr === null) return;
+            const newRate = parseFloat(newRateStr);
+            if (isNaN(newRate) || newRate <= 0) {
+                alert("Please enter a valid positive number.");
+                return;
+            }
+
+            if (!confirm(`Changing the rate to ${newRate} Credits/hr will REFUND the current security bond (${currentRate} Credits) and require you to deposit a new bond (${newRate} Credits).\n\nContinue?`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/employer/proposals/${proposalId}/update-rate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
+                    body: JSON.stringify({ rate: newRate })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    alert('Rate updated. The security bond has been refunded. Please activate the contract again with the new rate.');
+                    location.href = '/employer/messages?job=' + '<%= proposal.job_id %>' + '&to=' + '<%= proposal.freelancer_id %>';
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Network error');
+            }
+        }
+
+        async function approveTimesheet(id, amount) {
+            if (!confirm(`Confirm payment of $${amount} for this timesheet?\n\nThis amount will be deducted from your MAIN BALANCE.\nThe Security Bond is NOT used for weekly payments.`)) return;
+
+            try {
+                const res = await fetch(`/employer/timesheets/approve/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken }
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Network error');
+            }
+        }
+
+        async function rejectTimesheet(id) {
+            const reason = prompt("Please provide a reason for rejection (optional):");
+            if (reason === null) return; // cancelled
+
+            try {
+                const res = await fetch(`/employer/timesheets/reject/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Network error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vamper - Menu Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+
+    <style>
+        
+        .admin-page main {
+            background: linear-gradient(180deg, #f6f8fc 0%, #f0f7ff 100%);
+        }
+
+        .admin-page .card {
+            border: 1px solid #eef2f7;
+        }
+
+        .admin-page .accordion-button::after {
+            filter: none;
+        }
+
+        .admin-page .admin-sidebar {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion,
+        .admin-page .admin-sidebar .accordion-item,
+        .admin-page .admin-sidebar .accordion-header,
+        .admin-page .admin-sidebar .accordion-collapse,
+        .admin-page .admin-sidebar .accordion-body {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-item {
+            border: 0 !important;
+        }
+
+        .admin-page .admin-sidebar .input-group-text,
+        .admin-page .admin-sidebar .form-control {
+            border-color: #dee2e6 !important;
+        }
+
+        .admin-page .admin-sidebar .form-control::placeholder {
+            color: #6c757d !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button {
+            color: #0d1b2a !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border-radius: 0.75rem !important;
+            padding: 0.65rem 0.75rem !important;
+            font-weight: 600;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:hover {
+            background: #f1f5ff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:not(.collapsed) {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button.collapsed {
+            background: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button i {
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar a:hover {
+            background: #f1f5ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a,
+        .admin-page .admin-sidebar a span,
+        .admin-page .admin-sidebar a i {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-body {
+            padding: 0.35rem 0.25rem;
+        }
+
+        .admin-page .admin-sidebar .accordion-body a {
+            padding: 0.5rem 0.6rem;
+            border-radius: 0.6rem;
+        }
+
+        .admin-page .admin-sidebar .accordion-body a[style*="background"] {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar-head {
+            background: linear-gradient(135deg, #e7f1ff 0%, #ffe8f0 50%, #e6fbff 100%) !important;
+        }
+
+        .admin-page .admin-sidebar-head,
+        .admin-page .admin-sidebar-head * {
+            color: #0d1b2a !important;
+        }
+    </style>
+</head>
+
+<body class="admin-page">
+    <%- include('../../public/header') %>
+
+        <main class="container-fluid py-3 py-md-4">
+            <div class="row g-0">
+                <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0">
+                    <%- include('layouts/menu') %>
+                </aside>
+
+                <section class="col-12 col-md-9 col-lg-10 ps-md-0">
+                    <div class="card border-0 shadow-sm rounded-4 mb-3">
+                        <div class="card-body py-3 px-3 px-md-4">
+                            <div
+                                class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button class="btn btn-sm btn-outline-secondary d-md-none" type="button"
+                                            data-bs-toggle="offcanvas" data-bs-target="#adminSidebar"
+                                            aria-controls="adminSidebar">
+                                            <i class="bi bi-list"></i>
+                                        </button>
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                            style="width: 34px; height: 34px; background: #e7f1ff; color: #0d6efd;">
+                                            <i class="bi bi-diagram-3"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Menu Management</div>
+                                            <div class="text-muted small">Manage multi-level navigation items</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <div class="input-group input-group-sm" style="width: 260px; max-width: 100%;">
+                                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                        <input class="form-control" type="text" placeholder="Search menus..."
+                                            aria-label="Search">
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-0 pt-3 pb-2 px-3 px-md-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="fw-bold">Menu Locations</div>
+                                    <div class="text-muted small">Assign which menu shows in each position for each role</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-3 px-md-4">
+                            <form method="POST" action="/admin/menus/locations/save?_csrf=<%= csrfToken %>">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <% const locations = ['header','footer','body']; %>
+                                <% const roles = ['guest','employer','freelancer','admin']; %>
+
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 140px;">Position</th>
+                                                <% roles.forEach(function(r){ %>
+                                                    <th class="text-capitalize"><%= r %></th>
+                                                <% }) %>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% locations.forEach(function(loc){ %>
+                                                <tr>
+                                                    <td class="fw-semibold text-capitalize"><%= loc %></td>
+                                                    <% roles.forEach(function(r){ %>
+                                                        <% const selectedId = (menuLocations && menuLocations[loc] && menuLocations[loc][r]) ? Number(menuLocations[loc][r]) : 0; %>
+                                                        <td>
+                                                            <select class="form-select form-select-sm" name="map_<%= loc %>_<%= r %>">
+                                                                <option value="">-- None --</option>
+                                                                <% if (typeof allMenus !== 'undefined' && allMenus && allMenus.length) { %>
+                                                                    <% allMenus.forEach(function(m){ %>
+                                                                        <option value="<%= m.id %>" <%= selectedId === Number(m.id) ? 'selected' : '' %>>
+                                                                            <%= m.name %> (<%= m.code %>)
+                                                                        </option>
+                                                                    <% }) %>
+                                                                <% } %>
+                                                            </select>
+                                                        </td>
+                                                    <% }) %>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-sm btn-primary px-3">
+                                        <i class="bi bi-save me-1"></i>Save Locations
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row g-4">
+                        <!-- Left Sidebar: Menu List -->
+                        <div class="col-12 col-lg-4 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-header bg-white border-0 pt-3 pb-2 px-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h6 class="fw-bold mb-0">Menus</h6>
+                                        <a href="/admin/menus/create" class="btn btn-sm btn-primary rounded-pill px-3">
+                                            <i class="bi bi-plus-lg me-1"></i>New
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <% if (menus && menus.length> 0) { %>
+                                            <% menus.forEach(function(menu) { %>
+                                                <div
+                                                    class="list-group-item list-group-item-action border-0 py-3 px-3 position-relative <%= (typeof selectedMenuId !== 'undefined' && selectedMenuId === menu.id) ? 'bg-light' : '' %>">
+                                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                                        <div class="fw-bold text-dark">
+                                                            <a class="text-decoration-none text-dark" href="/admin/menus?page=<%= currentPage %>&id=<%= menu.id %>"><%= menu.name %></a>
+                                                        </div>
+                                                        <% if (menu.is_active) { %>
+                                                            <span
+                                                                class="badge bg-success-subtle text-success rounded-pill"
+                                                                style="font-size: 0.7rem;">Active</span>
+                                                            <% } else { %>
+                                                                <span
+                                                                    class="badge bg-secondary-subtle text-secondary rounded-pill"
+                                                                    style="font-size: 0.7rem;">Draft</span>
+                                                                <% } %>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-end">
+                                                        <div>
+                                                            <div class="text-muted small font-monospace">
+                                                                <a class="text-decoration-none text-muted" href="/admin/menus?page=<%= currentPage %>&id=<%= menu.id %>"><%= menu.code %></a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="btn-group position-relative" style="z-index: 2;">
+                                                            <a href="/admin/menus/edit/<%= menu.id %>"
+                                                                class="btn btn-sm btn-outline-primary me-1" title="Edit"
+                                                                data-bs-toggle="tooltip">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <form action="/admin/menus/delete/<%= menu.id %>?_csrf=<%= csrfToken %>"
+                                                                method="POST" class="d-inline delete-menu-form"
+                                                                data-confirm="Are you sure you want to delete this menu? This action cannot be undone.">
+                                                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                                        <button type="submit"
+                                                                            class="btn btn-sm btn-outline-danger"
+                                                                            title="Delete" data-bs-toggle="tooltip">
+                                                                            <i class="bi bi-trash"></i>
+                                                                        </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <% }); %>
+                                                    <% } else { %>
+                                                        <div class="text-center p-4 text-muted">No menus found</div>
+                                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-top-0 py-3">
+                                    <!-- Pagination -->
+                                    <% if (totalPages> 1) { %>
+                                        <nav aria-label="Menu pagination">
+                                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                                <li class="page-item <%= currentPage == 1 ? 'disabled' : '' %>">
+                                                    <a class="page-link border-0 bg-transparent"
+                                                        href="/admin/menus?page=<%= currentPage - 1 %>">
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item disabled">
+                                                    <span class="page-link border-0 bg-transparent text-muted">
+                                                        <%= currentPage %> / <%= totalPages %>
+                                                    </span>
+                                                </li>
+                                                <li
+                                                    class="page-item <%= currentPage == totalPages ? 'disabled' : '' %>">
+                                                    <a class="page-link border-0 bg-transparent"
+                                                        href="/admin/menus?page=<%= currentPage + 1 %>">
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                        <% } %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Content: Menu Items -->
+                        <div class="col-12 col-lg-8 col-xl-9">
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div
+                                    class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="fw-bold mb-0">Menu Items</h5>
+                                        <div class="text-muted small">Managing items for sidebar</div>
+                                    </div>
+                                    <a class="btn btn-primary btn-sm rounded-pill px-3"
+                                        href="/admin/menu-items/create?menu_id=<%= selectedMenuId %>">
+                                        <i class="bi bi-plus-lg me-1"></i>Add Item
+                                    </a>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="nav nav-tabs nav-justified border-bottom-0 bg-light rounded-top-0"
+                                        id="menuItemTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button
+                                                class="nav-link active rounded-0 py-3 border-0 border-bottom border-primary border-3 bg-white fw-semibold"
+                                                id="items-tab" data-bs-toggle="tab" data-bs-target="#items-panel"
+                                                type="button">
+                                                Current Items
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link rounded-0 py-3 border-0 text-muted" id="drag-tab"
+                                                type="button">
+                                                Reorder <i class="bi bi-grip-vertical ms-1"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active" id="items-panel" role="tabpanel"
+                                            tabindex="0">
+                                            <div class="table-responsive">
+                                                <table class="table align-middle mb-0 table-hover">
+                                                    <thead class="bg-light">
+                                                        <tr>
+                                                            <th class="ps-4" style="width: 40%">Label</th>
+                                                            <th style="width: 20%">Menu</th>
+                                                            <th style="width: 30%">Target</th>
+                                                            <th style="width: 15%">Type</th>
+                                                            <th class="text-end pe-4" style="width: 15%">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% if (typeof menuItems !== 'undefined' && menuItems && menuItems.length > 0) { %>
+                                                            <% menuItems.forEach(function(item) { %>
+                                                                <tr>
+                                                                    <td class="ps-4">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <i class="bi bi-grip-vertical text-muted me-2" style="cursor: move;"></i>
+                                                                            <div>
+                                                                                <div class="fw-bold text-dark"><%= item.label %></div>
+                                                                                <div class="text-muted small">
+                                                                                    <%= item.url ? item.url : (item.route_name ? item.route_name : '-') %>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="small fw-semibold text-dark"><%= item.menu_name ? item.menu_name : ('Menu #' + item.menu_id) %></div>
+                                                                        <div class="text-muted small font-monospace"><%= item.menu_code ? item.menu_code : '-' %></div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="badge bg-light text-secondary border"><%= item.target %></span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="badge bg-primary-subtle text-primary"><%= item.item_type %></span>
+                                                                    </td>
+                                                                    <td class="text-end pe-4">
+                                                                        <div class="btn-group">
+                                                                            <a class="btn btn-icon btn-sm btn-light text-secondary me-1" href="/admin/menu-items/edit/<%= item.id %>" title="Edit Item" data-bs-toggle="tooltip"><i class="bi bi-pencil"></i></a>
+                                                                            <form action="/admin/menu-items/delete/<%= item.id %>?_csrf=<%= csrfToken %>" method="POST" class="d-inline delete-menu-item-form" data-confirm="Are you sure you want to delete this menu item? This action cannot be undone.">
+                                                                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                                                <button type="submit" class="btn btn-icon btn-sm btn-light text-danger" title="Delete Item" data-bs-toggle="tooltip"><i class="bi bi-trash"></i></button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        <% } else { %>
+                                                            <tr>
+                                                                <td colspan="5" class="text-center py-4">
+                                                                    <div class="text-muted">No menu items found.</div>
+                                                                </td>
+                                                            </tr>
+                                                        <% } %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <% if (typeof itemsTotalPages !== 'undefined' && itemsTotalPages > 1) { %>
+                                                <div class="border-top bg-white py-3 px-4">
+                                                    <% const itemsStart = ((itemsCurrentPage - 1) * 10) + 1; %>
+                                                    <% const itemsEnd = Math.min(itemsCurrentPage * 10, itemsTotal || 0); %>
+                                                    <div class="text-muted small mb-2">Showing <%= itemsStart %>–<%= itemsEnd %> of <%= itemsTotal %> items</div>
+                                                    <nav aria-label="Menu items pagination">
+                                                        <ul class="pagination pagination-sm justify-content-end mb-0">
+                                                            <li class="page-item <%= itemsCurrentPage == 1 ? 'disabled' : '' %>">
+                                                                <a class="page-link" href="/admin/menus?page=<%= currentPage %>&id=<%= selectedMenuId %>&items_page=<%= itemsCurrentPage - 1 %>">Previous</a>
+                                                            </li>
+                                                            <% for (let i = 1; i <= itemsTotalPages; i++) { %>
+                                                                <li class="page-item <%= itemsCurrentPage == i ? 'active' : '' %>">
+                                                                    <a class="page-link" href="/admin/menus?page=<%= currentPage %>&id=<%= selectedMenuId %>&items_page=<%= i %>"><%= i %></a>
+                                                                </li>
+                                                            <% } %>
+                                                            <li class="page-item <%= itemsCurrentPage == itemsTotalPages ? 'disabled' : '' %>">
+                                                                <a class="page-link" href="/admin/menus?page=<%= currentPage %>&id=<%= selectedMenuId %>&items_page=<%= itemsCurrentPage + 1 %>">Next</a>
+                                                            </li>
+                                                        </ul>
+                                                    </nav>
+                                                </div>
+                                            <% } %>
+                                        </div>
+
+                                        <div class="tab-pane fade p-4" id="add-item-panel" role="tabpanel" tabindex="0">
+                                            <form>
+                                                <div class="row g-3">
+                                                    <div class="col-md-8">
+                                                        <label
+                                                            class="form-label small text-muted text-uppercase fw-bold">Display
+                                                            Label</label>
+                                                        <input type="text" class="form-control"
+                                                            placeholder="e.g. Dashboard">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label
+                                                            class="form-label small text-muted text-uppercase fw-bold">Icon
+                                                            Class</label>
+                                                        <input type="text" class="form-control" placeholder="bi-house">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label
+                                                            class="form-label small text-muted text-uppercase fw-bold">URL
+                                                            Route</label>
+                                                        <input type="text" class="form-control" placeholder="/">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label
+                                                            class="form-label small text-muted text-uppercase fw-bold">Parent</label>
+                                                        <select class="form-select">
+                                                            <option value="">-- No Parent (Root) --</option>
+                                                            <option>Dashboard</option>
+                                                            <option>Settings</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-12 text-end mt-4">
+                                                        <button type="button" class="btn btn-light" data-bs-toggle="tab"
+                                                            data-bs-target="#items-panel">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary px-4">Save
+                                                            Item</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <%- include('../../public/footer') %>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="/js/admin-menus.js"></script>
+    </body>
+</html>

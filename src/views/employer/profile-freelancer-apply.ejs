@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="<%= (typeof lang !== 'undefined' && lang) ? String(lang) : 'vi' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= (typeof t === 'function') ? t('employer.applicant_profile.page_title', 'Vamper - Applicant Profile') : 'Vamper - Applicant Profile' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .skill-badge { margin: 0 .25rem .25rem 0; }
+    </style>
+    </head>
+<body>
+    <%- include('../../public/header') %>
+
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row">
+            <%- include('./layouts/menu') %>
+
+            <section class="col-md-9 ms-sm-auto col-lg-10 px-2 px-md-4 employer-view-applicant">
+                <% if (success_msg && success_msg.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i><%= success_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                <% if (error_msg && error_msg.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i><%= error_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2 mb-0"><%= (typeof t === 'function') ? t('employer.applicant_profile.heading', 'Applicant Profile') : 'Applicant Profile' %></h1>
+                    <div class="ms-auto d-flex gap-2">
+                        <% if (typeof profile !== 'undefined' && profile.user_id) { %>
+                            <a href="/employer/messages?to=<%= profile.user_id %>" class="btn btn-primary btn-sm">
+                                <i class="bi bi-chat-dots-fill me-1"></i><%= (typeof t === 'function') ? t('common.message', 'Message') : 'Message' %>
+                            </a>
+                        <% } %>
+                        <a href="/employer/applications" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i><%= (typeof t === 'function') ? t('common.back_to_list', 'Back to list') : 'Back to list' %>
+                        </a>
+                    </div>
+                </div>
+
+                <% const p = (typeof profile !== 'undefined' && profile) ? profile : {}; %>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column flex-md-row align-items-start gap-3">
+                            <div class="user-avatar d-inline-flex align-items-center justify-content-center">
+                                <% if (p.avatar_url) { %>
+                                    <img src="<%= p.avatar_url %>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                <% } else { %>
+                                    <i class="bi bi-person-circle"></i>
+                                <% } %>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <h3 class="mb-0"><%= p.full_name %></h3>
+                                    <% if (p.experience_level) { %>
+                                        <span class="badge bg-secondary-subtle text-secondary text-capitalize"><%= p.experience_level %></span>
+                                    <% } %>
+                                </div>
+                                <div class="text-muted"><%= p.title || ((typeof t === 'function') ? t('employer.applicant_profile.no_title', 'No professional title yet') : 'No professional title yet') %></div>
+                                <div class="small text-muted">
+                                    <% const locParts = [p.location, p.country].filter(Boolean); %>
+                                    <% if (locParts.length) { %>
+                                        <i class="bi bi-geo-alt me-1"></i><%= locParts.join(', ') %>
+                                    <% } %>
+                                    <% if (p.hourly_rate !== undefined && p.hourly_rate !== null) { %>
+                                        <span class="ms-3"><i class="bi bi-cash-coin me-1"></i>$<%= Number(p.hourly_rate).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) %>/hr</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm rounded-4 mb-3">
+                            <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0">
+                                <div class="h5 mb-1"><%= (typeof t === 'function') ? t('employer.applicant_profile.about', 'About') : 'About' %></div>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0"><%= p.bio || ((typeof t === 'function') ? t('employer.applicant_profile.no_bio', 'No introduction yet.') : 'No introduction yet.') %></p>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0 d-flex align-items-center justify-content-between">
+                                <div class="h5 mb-1"><%= (typeof t === 'function') ? t('employer.applicant_profile.applied_to_your_jobs', 'Applications to your jobs') : 'Applications to your jobs' %></div>
+                                <div class="text-muted small"><%= (typeof t === 'function') ? t('common.total', 'Total') : 'Total' %>: <span class="fw-semibold text-dark"><%= (Array.isArray(proposals) ? proposals.length : 0) %></span></div>
+                            </div>
+                            <div class="card-body p-0">
+                                <% if (!proposals || !proposals.length) { %>
+                                    <div class="p-4 text-muted"><%= (typeof t === 'function') ? t('employer.applicant_profile.no_applications', 'No applications yet.') : 'No applications yet.' %></div>
+                                <% } else { %>
+                                    <div class="table-responsive">
+                                        <table class="table align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="ps-4"><%= (typeof t === 'function') ? t('common.job', 'Job') : 'Job' %></th>
+                                                    <th><%= (typeof t === 'function') ? t('common.bid', 'Bid') : 'Bid' %></th>
+                                                    <th><%= (typeof t === 'function') ? t('common.applied', 'Applied') : 'Applied' %></th>
+                                                    <th><%= (typeof t === 'function') ? t('common.status', 'Status') : 'Status' %></th>
+                                                    <th class="text-end pe-4"><%= (typeof t === 'function') ? t('common.action', 'Action') : 'Action' %></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% proposals.forEach(function(item) { %>
+                                                    <tr>
+                                                        <td class="ps-4">
+                                                            <div class="fw-semibold">
+                                                                <% if (item.job_slug) { %>
+                                                                    <a href="/jobs/<%= item.job_slug %>" target="_blank" class="text-decoration-none"><%= item.job_title || ('Job #' + item.job_id) %></a>
+                                                                <% } else { %>
+                                                                    <%= item.job_title || ('Job #' + item.job_id) %>
+                                                                <% } %>
+                                                            </div>
+                                                        </td>
+                                                        <td>$<%= (item.bid_amount !== undefined && item.bid_amount !== null) ? Number(item.bid_amount).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : '0' %></td>
+                                                        <td><%= item.created_at ? new Date(item.created_at).toLocaleString() : '' %></td>
+                                                        <td><span class="badge text-capitalize <%= item.status === 'accepted' ? 'bg-success-subtle text-success' : (item.status === 'rejected' ? 'bg-danger-subtle text-danger' : (item.status === 'withdrawn' ? 'bg-secondary-subtle text-secondary' : 'bg-warning-subtle text-warning text-dark')) %>"><%= item.status %></span></td>
+                                                        <td class="text-end pe-4">
+                                                            <% if (profile.user_id) { %>
+                                                                <a href="/employer/messages?to=<%= profile.user_id %>&job=<%= item.job_id %>" class="btn btn-outline-primary btn-sm rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Message">
+                                                                    <i class="bi bi-chat-dots-fill"></i>
+                                                                </a>
+                                                            <% } %>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4 mb-3">
+                            <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0">
+                                <div class="h5 mb-1"><%= (typeof t === 'function') ? t('common.skills', 'Skills') : 'Skills' %></div>
+                            </div>
+                            <div class="card-body">
+                                <% const skillsList = Array.isArray(skills) ? skills : []; %>
+                                <% if (!skillsList.length) { %>
+                                    <div class="text-muted"><%= (typeof t === 'function') ? t('employer.applicant_profile.no_skills', 'No skills added yet.') : 'No skills added yet.' %></div>
+                                <% } else { %>
+                                    <div>
+                                        <% skillsList.forEach(function(s) { %>
+                                            <span class="badge bg-light text-dark border skill-badge"><%= s.name %></span>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0">
+                                <div class="h5 mb-1"><%= (typeof t === 'function') ? t('common.links', 'Links') : 'Links' %></div>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <% if (p.portfolio_url) { %>
+                                        <li class="mb-2"><i class="bi bi-link-45deg me-2"></i><a href="<%= p.portfolio_url %>" target="_blank" rel="noopener" class="text-decoration-none"><%= (typeof t === 'function') ? t('common.portfolio', 'Portfolio') : 'Portfolio' %></a></li>
+                                    <% } %>
+                                    <% if (p.github_url) { %>
+                                        <li class="mb-2"><i class="bi bi-github me-2"></i><a href="<%= p.github_url %>" target="_blank" rel="noopener" class="text-decoration-none">GitHub</a></li>
+                                    <% } %>
+                                    <% if (p.linkedin_url) { %>
+                                        <li class="mb-2"><i class="bi bi-linkedin me-2"></i><a href="<%= p.linkedin_url %>" target="_blank" rel="noopener" class="text-decoration-none">LinkedIn</a></li>
+                                    <% } %>
+                                    <% if (p.website) { %>
+                                        <li class="mb-2"><i class="bi bi-globe me-2"></i><a href="<%= p.website %>" target="_blank" rel="noopener" class="text-decoration-none"><%= (typeof t === 'function') ? t('common.website', 'Website') : 'Website' %></a></li>
+                                    <% } %>
+                                    <% if (p.cv_url) { %>
+                                        <li class="mb-2"><i class="bi bi-file-earmark-text me-2"></i><a href="<%= p.cv_url %>" target="_blank" rel="noopener" class="text-decoration-none"><%= (typeof t === 'function') ? t('common.view_cv', 'View CV') : 'View CV' %></a></li>
+                                    <% } %>
+                                    <li class="mb-2"><i class="bi bi-envelope me-2"></i><span><%= p.email %></span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

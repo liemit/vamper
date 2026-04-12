@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vamper - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        
+        .admin-page main {
+            background: linear-gradient(180deg, #f6f8fc 0%, #f0f7ff 100%);
+        }
+
+        .admin-page .card {
+            border: 1px solid #eef2f7;
+        }
+
+        .admin-page .accordion-button::after {
+            filter: none;
+        }
+
+        .admin-page .admin-sidebar {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion,
+        .admin-page .admin-sidebar .accordion-item,
+        .admin-page .admin-sidebar .accordion-header,
+        .admin-page .admin-sidebar .accordion-collapse,
+        .admin-page .admin-sidebar .accordion-body {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-item {
+            border: 0 !important;
+        }
+
+        .admin-page .admin-sidebar .input-group-text,
+        .admin-page .admin-sidebar .form-control {
+            border-color: #dee2e6 !important;
+        }
+
+        .admin-page .admin-sidebar .form-control::placeholder {
+            color: #6c757d !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button {
+            color: #0d1b2a !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border-radius: 0.75rem !important;
+            padding: 0.65rem 0.75rem !important;
+            font-weight: 600;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:hover {
+            background: #f1f5ff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:not(.collapsed) {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button.collapsed {
+            background: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button i {
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar a:hover {
+            background: #f1f5ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a,
+        .admin-page .admin-sidebar a span,
+        .admin-page .admin-sidebar a i {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-body {
+            padding: 0.35rem 0.25rem;
+        }
+
+        .admin-page .admin-sidebar .accordion-body a {
+            padding: 0.5rem 0.6rem;
+            border-radius: 0.6rem;
+        }
+
+        .admin-page .admin-sidebar .accordion-body a[style*="background"] {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar-head {
+            background: linear-gradient(135deg, #e7f1ff 0%, #ffe8f0 50%, #e6fbff 100%) !important;
+        }
+
+        .admin-page .admin-sidebar-head,
+        .admin-page .admin-sidebar-head * {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .hero-accent {
+            height: 4px;
+            background: linear-gradient(90deg, #0d6efd 0%, #6f42c1 50%, #20c997 100%);
+            border-radius: 4px;
+        }
+
+        .admin-page .kpi.users {
+            background: linear-gradient(135deg, #e7f1ff 0%, #ffffff 60%);
+        }
+
+        .admin-page .kpi.jobs {
+            background: linear-gradient(135deg, #e8fff0 0%, #ffffff 60%);
+        }
+
+        .admin-page .kpi.transactions {
+            background: linear-gradient(135deg, #fff7e6 0%, #ffffff 60%);
+        }
+
+        .admin-page .kpi.health {
+            background: linear-gradient(135deg, #e6fbff 0%, #ffffff 60%);
+        }
+
+        .admin-page .pending-box {
+            background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+        }
+
+        .admin-page .health-box {
+            background: linear-gradient(135deg, #f7fff9 0%, #ffffff 100%);
+        }
+    </style>
+</head>
+
+<body class="admin-page">
+    <%- include('../../public/header') %>
+
+        <main class="container-fluid py-3 py-md-4">
+            <div class="row g-0">
+                <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0">
+                    <%- include('layouts/menu') %>
+                </aside>
+
+                <section class="col-12 col-md-9 col-lg-10 ps-md-0">
+                    <div class="card border-0 shadow-sm rounded-4 mb-3">
+                        <div class="card-body py-3 px-3 px-md-4">
+                            <div
+                                class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button class="btn btn-sm btn-outline-secondary d-md-none" type="button"
+                                            data-bs-toggle="offcanvas" data-bs-target="#adminSidebar"
+                                            aria-controls="adminSidebar">
+                                            <i class="bi bi-list"></i>
+                                        </button>
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                            style="width: 34px; height: 34px; background: #e7f1ff; color: #0d6efd;">
+                                            <i class="bi bi-terminal"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Admin Dashboard</div>
+                                            <div class="text-muted small">Full control over users, jobs, finance, and
+                                                system settings</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <div class="input-group input-group-sm" style="width: 260px; max-width: 100%;">
+                                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                        <input class="form-control" type="text" placeholder="Search users, jobs..."
+                                            aria-label="Search">
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" type="button">
+                                        <i class="bi bi-plus-lg me-1"></i>Quick Create
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-accent d-none d-md-block mb-3"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 kpi users">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="text-muted small">Total Users</div>
+                                            <div class="h4 fw-bold mb-0"><%= (typeof stats !== 'undefined') ? stats.totalUsers : '--' %></div>
+                                            <div class="text-muted small mt-1">All roles</div>
+                                        </div>
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(13,110,253,0.12), rgba(111,66,193,0.12)); color: #0d6efd;">
+                                            <i class="bi bi-people fs-5"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 kpi jobs">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="text-muted small">Open Jobs</div>
+                                            <div class="h4 fw-bold mb-0"><%= (typeof stats !== 'undefined') ? stats.openJobs : '--' %></div>
+                                            <div class="text-muted small mt-1">Status: open</div>
+                                        </div>
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(25,135,84,0.12), rgba(32,201,151,0.12)); color: #198754;">
+                                            <i class="bi bi-briefcase fs-5"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 kpi transactions">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="text-muted small">Transactions</div>
+                                            <div class="h4 fw-bold mb-0"><%= (typeof stats !== 'undefined') ? stats.todayTx : '--' %></div>
+                                            <div class="text-muted small mt-1">Today</div>
+                                        </div>
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255,193,7,0.18), rgba(255,102,0,0.12)); color: #b78103;">
+                                            <i class="bi bi-cash-coin fs-5"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 kpi health">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="text-muted small">System Health</div>
+                                            <div class="h4 fw-bold mb-0 text-success">OK</div>
+                                            <div class="text-muted small mt-1">
+                                                <% if (typeof stats !== 'undefined' && stats.openDisputes > 0) { %>
+                                                    <span class="text-warning"><%= stats.openDisputes %> open dispute(s)</span>
+                                                <% } else if (typeof stats !== 'undefined' && stats.pendingWithdrawals > 0) { %>
+                                                    <span class="text-info"><%= stats.pendingWithdrawals %> pending withdrawal(s)</span>
+                                                <% } else { %>
+                                                    Security enabled
+                                                <% } %>
+                                            </div>
+                                            <div class="text-muted small mt-1">Security enabled</div>
+                                        </div>
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(13,202,240,0.14), rgba(13,110,253,0.10)); color: #0aa2c0;">
+                                            <i class="bi bi-shield-check fs-5"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-xl-7">
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="fw-bold">Recent Activity</div>
+                                        <a class="small text-decoration-none" href="/admin/activity">View all</a>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width: 34%">Event</th>
+                                                    <th style="width: 40%">Details</th>
+                                                    <th style="width: 13%">Severity</th>
+                                                    <th style="width: 13%">Time</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="fw-semibold">User registration</td>
+                                                    <td class="text-muted">New employer account created</td>
+                                                    <td><span class="badge bg-success-subtle text-success">info</span>
+                                                    </td>
+                                                    <td class="text-muted small">just now</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-semibold">Job posted</td>
+                                                    <td class="text-muted">New job awaiting verification</td>
+                                                    <td><span class="badge bg-warning-subtle text-warning">review</span>
+                                                    </td>
+                                                    <td class="text-muted small">5 mins ago</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-semibold">User report</td>
+                                                    <td class="text-muted">Freelancer flagged by employer</td>
+                                                    <td><span class="badge bg-danger-subtle text-danger">alert</span>
+                                                    </td>
+                                                    <td class="text-muted small">1 hour ago</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-xl-5">
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="fw-bold">Admin Shortcuts</div>
+                                        <span class="text-muted small">Quick actions</span>
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <a href="/admin/jobs" class="btn btn-outline-primary w-100 text-start">
+                                                <i class="bi bi-card-checklist me-2"></i>Moderate Jobs
+                                            </a>
+                                        </div>
+                                        <div class="col-12">
+                                            <a href="/admin/users" class="btn btn-outline-secondary w-100 text-start">
+                                                <i class="bi bi-people me-2"></i>Manage Users
+                                            </a>
+                                        </div>
+                                        <div class="col-12">
+                                            <a href="/admin/withdrawals"
+                                                class="btn btn-outline-warning w-100 text-start">
+                                                <i class="bi bi-receipt me-2"></i>Review Transactions
+                                            </a>
+                                        </div>
+                                        <div class="col-12">
+                                            <a href="/admin/menus" class="btn btn-outline-success w-100 text-start">
+                                                <i class="bi bi-diagram-3 me-2"></i>Edit Menus
+                                            </a>
+                                        </div>
+                                        <div class="col-12">
+                                            <a href="/admin/security" class="btn btn-outline-dark w-100 text-start">
+                                                <i class="bi bi-sliders me-2"></i>System Settings
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 p-3 rounded-4 border pending-box">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="fw-semibold">Pending</div>
+                                            <span class="badge bg-primary-subtle text-primary">Today</span>
+                                        </div>
+                                        <div
+                                            class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span
+                                                    class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center"
+                                                    style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-briefcase"></i>
+                                                </span>
+                                                <div>
+                                                    <div class="small fw-semibold">Jobs</div>
+                                                    <div class="text-muted small">Needs review</div>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-warning-subtle text-warning">12</span>
+                                        </div>
+                                        <div
+                                            class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span
+                                                    class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center"
+                                                    style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-person-check"></i>
+                                                </span>
+                                                <div>
+                                                    <div class="small fw-semibold">KYC</div>
+                                                    <div class="text-muted small">Pending</div>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success-subtle text-success">4</span>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between pt-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span
+                                                    class="rounded-circle bg-danger bg-opacity-10 text-danger d-inline-flex align-items-center justify-content-center"
+                                                    style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-flag"></i>
+                                                </span>
+                                                <div>
+                                                    <div class="small fw-semibold">Reports</div>
+                                                    <div class="text-muted small">Action needed</div>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-danger-subtle text-danger">3</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 p-3 rounded-4 border health-box">
+                                        <div class="fw-semibold mb-2">System Health</div>
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <span class="text-muted small">Server load</span>
+                                            <span class="small fw-semibold">42%</span>
+                                        </div>
+                                        <div class="progress mb-2" style="height: 6px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 42%">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <span class="text-muted small">Background services</span>
+                                            <span class="small fw-semibold">Stable</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 86%">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <div class="fw-semibold">Maintenance Mode</div>
+                                            <div class="text-muted small">Disable public access temporarily</div>
+                                        </div>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                id="maintenanceMode">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <%- include('../../public/footer') %>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

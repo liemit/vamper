@@ -1,0 +1,178 @@
+
+
+.avatar-preview-wrapper {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 999px;
+    background-color: #f8f9fa;
+    border: 1px dashed #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.avatar-preview-wrapper img {
+    width: 50px !important;
+    height: 50px !important;
+    object-fit: cover;
+}
+
+/* Ensure images within rich text are responsive */
+.vamper-richtext img {
+    max-width: 100% !important;
+    max-height: 400px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 8px 0;
+    display: block;
+}
+
+/* Auto grid when multiple images detected */
+.vamper-richtext.has-multi-images img {
+    max-height: 200px !important;
+    width: 100% !important;
+    object-fit: cover;
+    margin: 0;
+}
+
+.vamper-richtext.has-multi-images p:has(img) {
+    display: contents;
+}
+
+/* Job Image Gallery Grid */
+.job-image-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.job-image-gallery img {
+    width: 100% !important;
+    height: 160px !important;
+    object-fit: cover !important;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin: 0 !important;
+}
+
+.job-image-gallery img:hover { opacity: 0.85; }
+
+@media (max-width: 576px) {
+    .job-image-gallery { grid-template-columns: 1fr; }
+}
+
+/* Image Gallery Grid View */
+.vamper-richtext.image-grid-view {
+    display: flex;
+    flex-direction: column;
+}
+
+.vamper-richtext.image-grid-view .job-image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.vamper-richtext.image-grid-view .job-image-gallery img {
+    margin: 0;
+    width: 100% !important;
+    height: 200px !important;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+/* Also protect against Quill's inline width/height attributes if any */
+.ql-editor img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Job Image Gallery */
+.job-image-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.job-image-gallery img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.job-image-gallery img:hover {
+    opacity: 0.85;
+}
+
+@media (max-width: 576px) {
+    .job-image-gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ===== Mobile Offcanvas Nav Fix ===== */
+html, body {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+}
+
+/* Kill Bootstrap scrollbar compensation */
+body,
+body[style*="padding-right"],
+body.offcanvas-open {
+    padding-right: 0 !important;
+}
+
+@media (max-width: 575.98px) {
+    #mobileNavOffcanvas {
+        width: 85vw !important;
+        max-width: 320px !important;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+    #mobileNavOffcanvas {
+        width: min(80vw, 360px) !important;
+    }
+}
+
+.offcanvas-backdrop {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+/* ===== Admin Mobile: Show hamburger button on header ===== */
+/* Admin sidebar toggle button: ẩn mặc định trên non-admin và desktop */
+.admin-sidebar-btn {
+    display: none !important;
+}
+
+/* Chỉ hiện trên admin page + mobile */
+@media (max-width: 991.98px) {
+    .admin-page .admin-sidebar-btn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Đảm bảo hamburger chính luôn hiện trên admin */
+    .admin-page header .navbar-toggler {
+        display: flex !important;
+    }
+}

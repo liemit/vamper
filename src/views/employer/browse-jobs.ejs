@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs - Vamper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .jobs-page-hero {
+            background: radial-gradient(1200px circle at 20% 10%, rgba(13, 110, 253, 0.14), transparent 55%),
+                radial-gradient(900px circle at 90% 0%, rgba(214, 51, 132, 0.10), transparent 60%),
+                linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .jobs-filter-card {
+            position: sticky;
+            top: 84px;
+        }
+
+        .job-card {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            transition: transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(2, 6, 23, 0.10);
+        }
+
+        .job-thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+        }
+
+        .job-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .job-title {
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../../public/header') %>
+
+    <% const base = (typeof basePath !== 'undefined' && basePath) ? String(basePath) : '/employer/browse-jobs'; %>
+    <% const qVal = (typeof query !== 'undefined' && query && query.q) ? String(query.q) : ''; %>
+    <% const categoryVal = (typeof query !== 'undefined' && query && query.category) ? String(query.category) : ''; %>
+    <% const cats = (typeof categories !== 'undefined' && Array.isArray(categories)) ? categories : []; %>
+    <% const list = (typeof jobs !== 'undefined' && Array.isArray(jobs)) ? jobs : []; %>
+    <% const pager = (typeof pagination !== 'undefined' && pagination) ? pagination : null; %>
+
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row">
+            <%- include('./layouts/menu') %>
+
+            <section class="col-md-9 ms-sm-auto col-lg-10 px-2 px-md-4">
+                <div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><%= (typeof t === 'function') ? t('bodycontent.h1title', 'Browse all jobs') : 'Browse all jobs' %></h1>
+                </div>
+
+                <div class="card border-0 shadow-sm jobs-filter-card mb-4">
+                        <div class="card-body p-3 p-lg-4">
+                            <div class="fw-bold mb-3">Filter</div>
+                            <form class="d-flex flex-wrap gap-3" method="get" action="<%= base %>">
+                                <div class="flex-grow-1">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" name="q" value="<%= qVal %>" placeholder="e.g. React, PHP...">
+                                    </div>
+                                </div>
+
+                                <div style="min-width: 200px;">
+                                    <select class="form-select" name="category">
+                                        <option value="">All categories</option>
+                                        <% cats.forEach(function(c) { %>
+                                            <option value="<%= c.slug %>" <%= (String(c.slug) === String(categoryVal)) ? 'selected' : '' %>><%= c.name %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary fw-semibold" type="submit">Apply</button>
+                                    <a class="btn btn-outline-secondary" href="<%= base %>">Reset</a>
+                                </div>
+                            </form>
+                            <% if (pager && pager.total !== undefined) { %>
+                                <div class="text-muted small mt-3">
+                                    Showing
+                                    <span class="fw-semibold text-dark"><%= list.length %></span>
+                                    of
+                                    <span class="fw-semibold text-dark"><%= pager.total %></span>
+                                    jobs
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Banner: sidebar -->
+                    <% const sidebarBanners = (typeof banners !== 'undefined') ? banners.filter(b => b.position === 'sidebar') : []; %>
+                    <% if (sidebarBanners.length > 0) { %>
+                    <div class="mt-3 d-flex flex-column gap-3">
+                        <% sidebarBanners.forEach(b => { %>
+                        <div>
+                            <% if (b.ad_code) { %>
+                                <%- b.ad_code %>
+                            <% } else { %>
+                                <% if (b.link_url) { %><a href="<%= b.link_url %>" target="_blank" rel="noopener"><% } %>
+                                <img src="<%= b.image_url %>" alt="<%= b.title %>" class="img-fluid rounded-4 w-100" style="max-height:200px;object-fit:cover;">
+                                <% if (b.link_url) { %></a><% } %>
+                            <% } %>
+                        </div>
+                        <% }); %>
+                    </div>
+                    <% } %>
+
+                    <% if (!list.length) { %>
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="fw-bold mb-1">No jobs found</div>
+                                <div class="text-muted">Try adjusting your keyword or category filter.</div>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <div class="row g-3">
+                        <% list.forEach(function(job) { %>
+                            <% const companyName = job.company_name ? job.company_name : 'Company'; %>
+                            <% const budgetNum = (job.budget === undefined || job.budget === null) ? null : Number(job.budget); %>
+                            <% const budgetLabel = (budgetNum !== null && Number.isFinite(budgetNum))
+                                ? ('<i class="bi bi-gem text-primary"></i> ' + budgetNum.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }))
+                                : 'Negotiable'; %>
+                            <% const typeLabel = job.job_type === 'hourly' ? 'Hourly' : 'Project'; %>
+                            <% const typeBadgeClass = job.job_type === 'hourly'
+                                ? 'bg-warning-subtle text-warning text-dark'
+                                : 'bg-success-subtle text-success'; %>
+
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <a class="text-decoration-none" href="/employer/browse-jobs/jobs/<%= job.slug %>">
+                                    <div class="card job-card h-100 border-0 shadow-sm">
+                                        <div class="card-body p-3 p-lg-4">
+                                            <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="job-thumb">
+                                                        <% if (job.thumbnail_url) { %>
+                                                            <img src="<%= job.thumbnail_url %>" alt="<%= job.title %>">
+                                                        <% } else { %>
+                                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                                                                <i class="bi bi-briefcase text-secondary"></i>
+                                                            </div>
+                                                        <% } %>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-muted small">Company</div>
+                                                        <div class="fw-semibold text-dark" style="max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= companyName %></div>
+                                                    </div>
+                                                </div>
+                                                <span class="badge <%= typeBadgeClass %>"><%= typeLabel %></span>
+                                            </div>
+
+                                            <div class="fw-bold text-dark job-title mb-2"><%= job.title %></div>
+
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="text-muted small d-flex align-items-center gap-2">
+                                                    <i class="bi bi-clock"></i>
+                                                    <span><%= job.created_at ? new Date(job.created_at).toLocaleDateString() : '' %></span>
+                                                    <span class="ms-2"><i class="bi bi-eye"></i> <%= fmtViews(job.total_views) %></span>
+                                                </div>
+                                                <div class="fw-bold text-primary"><%- budgetLabel %></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <% if (pager && pager.totalPages && pager.totalPages > 1) { %>
+                        <% const qs = `?q=${encodeURIComponent(qVal)}${categoryVal ? ('&category=' + encodeURIComponent(categoryVal)) : ''}&`; %>
+                        <nav class="mt-4" aria-label="Jobs pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item <%= pager.page <= 1 ? 'disabled' : '' %>">
+                                    <a class="page-link" href="<%= base %><%= qs %>page=<%= pager.page - 1 %>">Previous</a>
+                                </li>
+
+                                <% for (let p = 1; p <= pager.totalPages; p++) { %>
+                                    <li class="page-item <%= p === pager.page ? 'active' : '' %>">
+                                        <a class="page-link" href="<%= base %><%= qs %>page=<%= p %>"><%= p %></a>
+                                    </li>
+                                <% } %>
+
+                                <li class="page-item <%= pager.page >= pager.totalPages ? 'disabled' : '' %>">
+                                    <a class="page-link" href="<%= base %><%= qs %>page=<%= pager.page + 1 %>">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    <% } %>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

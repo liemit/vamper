@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vamper - Edit Menu Item</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        
+        .admin-page main {
+            background: linear-gradient(180deg, #f6f8fc 0%, #f0f7ff 100%);
+        }
+
+        .admin-page .card {
+            border: 1px solid #eef2f7;
+        }
+
+        .admin-page .accordion-button::after {
+            filter: none;
+        }
+
+        .admin-page .admin-sidebar {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion,
+        .admin-page .admin-sidebar .accordion-item,
+        .admin-page .admin-sidebar .accordion-header,
+        .admin-page .admin-sidebar .accordion-collapse,
+        .admin-page .admin-sidebar .accordion-body {
+            background-color: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-item {
+            border: 0 !important;
+        }
+
+        .admin-page .admin-sidebar .input-group-text,
+        .admin-page .admin-sidebar .form-control {
+            border-color: #dee2e6 !important;
+        }
+
+        .admin-page .admin-sidebar .form-control::placeholder {
+            color: #6c757d !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button {
+            color: #0d1b2a !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border-radius: 0.75rem !important;
+            padding: 0.65rem 0.75rem !important;
+            font-weight: 600;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:hover {
+            background: #f1f5ff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button:not(.collapsed) {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button.collapsed {
+            background: #ffffff !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-button i {
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar a:hover {
+            background: #f1f5ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar a,
+        .admin-page .admin-sidebar a span,
+        .admin-page .admin-sidebar a i {
+            color: #0d1b2a !important;
+        }
+
+        .admin-page .admin-sidebar .accordion-body {
+            padding: 0.35rem 0.25rem;
+        }
+
+        .admin-page .admin-sidebar .accordion-body a {
+            padding: 0.5rem 0.6rem;
+            border-radius: 0.6rem;
+        }
+
+        .admin-page .admin-sidebar .accordion-body a[style*="background"] {
+            background: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .admin-page .admin-sidebar-head {
+            background: linear-gradient(135deg, #e7f1ff 0%, #ffe8f0 50%, #e6fbff 100%) !important;
+        }
+
+        .admin-page .admin-sidebar-head,
+        .admin-page .admin-sidebar-head * {
+            color: #0d1b2a !important;
+        }
+    </style>
+</head>
+
+<body class="admin-page">
+    <%- include('../../public/header') %>
+
+        <main class="container-fluid py-3 py-md-4">
+            <div class="row g-0">
+                <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0">
+                    <%- include('layouts/menu') %>
+                </aside>
+
+                <section class="col-12 col-md-9 col-lg-10 ps-md-0">
+                    <div class="card border-0 shadow-sm rounded-4 mb-3">
+                        <div class="card-body py-3 px-3 px-md-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary d-md-none" type="button"
+                                        data-bs-toggle="offcanvas" data-bs-target="#adminSidebar"
+                                        aria-controls="adminSidebar">
+                                        <i class="bi bi-list"></i>
+                                    </button>
+                                    <a href="/admin/menus?id=<%= selectedMenuId %>" class="btn btn-outline-secondary me-3">
+                                        <i class="bi bi-arrow-left"></i>
+                                    </a>
+                                    <div>
+                                        <h1 class="h3 mb-0 fw-bold">Edit Menu Item</h1>
+                                        <div class="text-muted small">Update an existing item</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <form action="/admin/menu-items/update/<%= item.id %>" method="POST">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Menu</label>
+                                        <select class="form-select" name="menu_id" required>
+                                            <% if (menus && menus.length) { %>
+                                                <% menus.forEach(function(m) { %>
+                                                    <option value="<%= m.id %>" <%= selectedMenuId === m.id ? 'selected' : '' %>><%= m.name %> (<%= m.code %>)</option>
+                                                <% }) %>
+                                            <% } %>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Parent</label>
+                                        <select class="form-select" name="parent_id">
+                                            <option value="" <%= !item.parent_id ? 'selected' : '' %>>-- No Parent (Root) --</option>
+                                            <% if (parentOptions && parentOptions.length) { %>
+                                                <% parentOptions.forEach(function(p) { %>
+                                                    <option value="<%= p.id %>" <%= item.parent_id === p.id ? 'selected' : '' %>><%= p.label %> (ID: <%= p.id %>)</option>
+                                                <% }) %>
+                                            <% } %>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Label</label>
+                                        <input type="text" class="form-control" name="label" value="<%= item.label %>" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Icon (Bootstrap Icons class)</label>
+                                        <input type="text" class="form-control" name="icon" value="<%= item.icon || '' %>" placeholder="e.g. bi-speedometer2">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">URL</label>
+                                        <input type="text" class="form-control" name="url" value="<%= item.url || '' %>" placeholder="e.g. /admin">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Route Name</label>
+                                        <input type="text" class="form-control" name="route_name" value="<%= item.route_name || '' %>" placeholder="e.g. admin.dashboard">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Item Type</label>
+                                        <select class="form-select" name="item_type">
+                                            <option value="link" <%= item.item_type === 'link' ? 'selected' : '' %>>link</option>
+                                            <option value="dropdown" <%= item.item_type === 'dropdown' ? 'selected' : '' %>>dropdown</option>
+                                            <option value="divider" <%= item.item_type === 'divider' ? 'selected' : '' %>>divider</option>
+                                            <option value="header" <%= item.item_type === 'header' ? 'selected' : '' %>>header</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Target</label>
+                                        <select class="form-select" name="target">
+                                            <option value="_self" <%= item.target === '_self' ? 'selected' : '' %>>_self</option>
+                                            <option value="_blank" <%= item.target === '_blank' ? 'selected' : '' %>>_blank</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Sort Order</label>
+                                        <input type="number" class="form-control" name="sort_order" value="<%= item.sort_order %>">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" <%= item.is_active ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="is_active">Active</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="requires_auth" name="requires_auth" <%= item.requires_auth ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="requires_auth">Requires Auth</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Visible For Roles</label>
+                                        <% const roleSet = new Set((typeof selectedRoles !== 'undefined' && selectedRoles) ? selectedRoles : []); %>
+                                        <div class="row g-2">
+                                            <div class="col-6 col-md-4 col-lg-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="role_guest" name="roles" value="guest" <%= roleSet.has('guest') ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="role_guest">Guest</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 col-lg-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="role_employer" name="roles" value="employer" <%= roleSet.has('employer') ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="role_employer">Employer</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 col-lg-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="role_freelancer" name="roles" value="freelancer" <%= roleSet.has('freelancer') ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="role_freelancer">Freelancer</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 col-lg-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="role_admin" name="roles" value="admin" <%= roleSet.has('admin') ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="role_admin">Admin</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-4">
+                                        <div class="d-flex gap-2">
+                                            <a href="/admin/menus?id=<%= selectedMenuId %>" class="btn btn-outline-secondary px-4">Cancel</a>
+                                            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <%- include('../../public/footer') %>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

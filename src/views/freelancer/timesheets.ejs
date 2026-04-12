@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Work - Vamper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('../../public/header') %>
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row">
+            <%- include('./layouts/menu') %>
+            <section class="col-md-9 ms-sm-auto col-lg-10 px-2 px-md-4">
+                <% if (success_msg && success_msg.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> <%= success_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                <% if (error_msg && error_msg.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> <%= error_msg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div>
+                        <h1 class="h2">Timesheets</h1>
+                        <div class="text-muted"><%= proposal.title %></div>
+                    </div>
+                    <div class="ms-auto">
+                        <a href="/freelancer/proposals" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Back to Projects
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Log Work Form -->
+                    <div class="col-12 col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                                <h5 class="fw-bold mb-0">Log New Hours</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/freelancer/timesheets/<%= proposal.id %>/save" method="POST">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <div class="mb-3">
+                                        <label class="form-label">Week Starting (Monday)</label>
+                                        <input type="date" name="week_start" class="form-control" required>
+                                        <div class="form-text small">Select the Monday of the week you worked.</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Total Hours</label>
+                                        <input type="number" name="hours" class="form-control" step="0.5" min="0.5" required placeholder="e.g. 10.5">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Work Description</label>
+                                        <textarea name="notes" class="form-control" rows="4" placeholder="Briefly describe what you worked on..." required></textarea>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Submit Timesheet</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- History -->
+                    <div class="col-12 col-lg-8">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0">History</h5>
+                                <div class="badge bg-light text-dark border">Hourly Rate: $<%= Number(proposal.bid_amount).toLocaleString() %>/hr</div>
+                            </div>
+                            <div class="card-body">
+                                <% if (!timesheets || timesheets.length === 0) { %>
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="bi bi-clock-history display-4 mb-3 d-block text-secondary opacity-50"></i>
+                                        No hours logged yet.
+                                    </div>
+                                <% } else { %>
+                                    <div class="table-responsive">
+                                        <table class="table align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Week Of</th>
+                                                    <th class="text-end">Hours</th>
+                                                    <th class="text-end">Amount</th>
+                                                    <th>Status</th>
+                                                    <th>Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% timesheets.forEach(ts => { %>
+                                                    <% 
+                                                        let statusClass = 'bg-secondary-subtle text-secondary';
+                                                        if (ts.status === 'approved') statusClass = 'bg-info-subtle text-info-emphasis';
+                                                        if (ts.status === 'paid') statusClass = 'bg-success-subtle text-success-emphasis';
+                                                        if (ts.status === 'disputed') statusClass = 'bg-danger-subtle text-danger-emphasis';
+                                                        if (ts.status === 'pending') statusClass = 'bg-warning-subtle text-warning-emphasis';
+                                                        
+                                                        const amount = Number(ts.hours) * Number(proposal.bid_amount);
+                                                    %>
+                                                    <tr>
+                                                        <td><%= new Date(ts.week_start).toLocaleDateString() %></td>
+                                                        <td class="text-end fw-semibold"><%= ts.hours %></td>
+                                                        <td class="text-end text-muted">$<%= amount.toLocaleString() %></td>
+                                                        <td><span class="badge <%= statusClass %> text-uppercase" style="font-size: 0.7rem;"><%= ts.status %></span></td>
+                                                        <td class="small text-muted" style="max-width: 200px;"><div class="text-truncate" title="<%= ts.notes %>"><%= ts.notes %></div></td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set default date to this week's Monday
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('input[name="week_start"]');
+            if (dateInput) {
+                const d = new Date();
+                const day = d.getDay();
+                const diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+                const monday = new Date(d.setDate(diff));
+                dateInput.value = monday.toISOString().split('T')[0];
+            }
+        });
+    </script>
+</body>
+</html>

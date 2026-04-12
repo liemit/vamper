@@ -1,0 +1,18 @@
+
+.employer-job-thumb {
+    width: 100px;
+    height: 50px;
+    min-width: 100px;
+    min-height: 50px;
+    flex: 0 0 30px;
+    overflow: hidden;
+}
+
+.employer-job-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}

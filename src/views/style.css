@@ -1,0 +1,1081 @@
+/* Font configuration */
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Hero Section with Gradient */
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+    min-height: 500px;
+    clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+}
+
+.hero-section .form-control:focus {
+    box-shadow: none;
+    border-color: white;
+}
+
+/* Card Hover Effects */
+.hover-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    transform: translateY(-2px);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.job-thumb {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
+    flex: 0 0 50px;
+    overflow: hidden;
+}
+
+.job-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+/* Utility to ensure footer stays at bottom if content is short */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+.input-group-text {
+    border-right: 0;
+}
+
+/* Header Responsive Styles */
+.navbar-nav .nav-item.dropdown .dropdown-menu {
+    border: 1px solid #dee2e6;
+    box-shadow: none;
+    margin-top: 0.25rem;
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    background: #e7f1ff;
+    color: #0d6efd;
+    border: 1px solid rgba(13, 110, 253, 0.25);
+    flex: 0 0 34px;
+    border-radius: 50%;
+}
+
+.user-avatar i {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.user-name {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.freelancer-profile #avatar-preview-container {
+    width: 100px;
+    height: 100px;
+}
+
+/* Ensure images within rich text are responsive */
+.vamper-richtext img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 10px 0;
+    display: block;
+}
+
+/* Also protect against Quill's inline width/height attributes if any */
+.ql-editor img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+    border-radius: 8px;
+}
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+    flex: 0 0 34px !important;
+    overflow: hidden !important;
+    border-radius: 50% !important;
+}
+
+.freelancer-profile #avatar-preview-container img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+/* Add spacing between login and signup buttons on desktop */
+@media (min-width: 992px) {
+    .navbar-nav {
+        align-items: center;
+    }
+
+    .navbar-nav .nav-item.dropdown:nth-child(4),
+    .navbar-nav .nav-item.dropdown:nth-child(5) {
+        margin-left: 0.5rem;
+    }
+
+    .navbar-nav .dropdown-hover:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .navbar-nav .dropdown-hover:hover > .dropdown-toggle {
+        color: #0d6efd;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .navbar .navbar-toggler {
+        border-radius: 12px;
+        padding: 8px 10px;
+        border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    .navbar .navbar-collapse {
+        margin-top: 12px;
+        padding: 10px;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+        max-height: calc(100vh - 96px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .navbar-nav {
+        width: 100%;
+        gap: 2px;
+        padding-bottom: 8px;
+    }
+
+    .navbar-nav .nav-item.dropdown > .btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 6px;
+    }
+
+    .navbar-nav > .nav-item {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 12px 12px;
+        border-radius: 12px;
+        color: #111827;
+    }
+
+    .navbar-nav .nav-link:active {
+        background: #f1f5ff;
+    }
+
+    .navbar-nav .nav-item.dropdown,
+    .navbar-nav .nav-item.dropdown.me-3,
+    .navbar-nav .nav-item.dropdown.me-3.d-flex {
+        position: relative;
+        display: block !important;
+        width: 100%;
+        margin-right: 0 !important;
+    }
+
+    .navbar-nav .nav-item.dropdown > .nav-link {
+        padding-right: 42px;
+    }
+
+    .navbar-nav .nav-item.dropdown > .btn-link.nav-link.dropdown-toggle {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        color: #6b7280;
+    }
+
+    .navbar-nav .nav-item.dropdown > button.btn-link.nav-link.dropdown-toggle {
+        border: 0;
+        background: transparent;
+        text-decoration: none;
+        line-height: 1;
+        font-size: 1rem;
+        opacity: 1;
+    }
+
+    .navbar-nav .nav-item.dropdown > .btn-link.nav-link.dropdown-toggle::after {
+        margin-left: 0;
+    }
+
+    .navbar-nav .nav-item.dropdown > .btn-link.nav-link.dropdown-toggle:active {
+        background: #f3f4f6;
+    }
+
+    .navbar-nav .nav-item.dropdown > .nav-link.dropdown-toggle::after {
+        display: none;
+    }
+
+    .navbar-nav .nav-item.dropdown > .nav-link .user-name {
+        max-width: 60vw;
+    }
+
+    .navbar-nav .nav-item.dropdown .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        inset: auto !important;
+        width: 100%;
+        margin: 2px 0 0;
+        padding: 4px 0 8px;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .navbar-nav .nav-item.dropdown .dropdown-item,
+    .navbar-nav .nav-item.dropdown .dropdown-header {
+        padding: 10px 12px;
+        border-radius: 12px;
+    }
+
+    .navbar-nav .nav-item.dropdown .dropdown-item {
+        color: #111827;
+        background: #f8fafc;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        margin: 6px 0 0;
+    }
+
+    .navbar-nav .nav-item.dropdown .dropdown-divider {
+        margin: 10px 0;
+        opacity: 0.12;
+    }
+
+    .navbar-nav .dropdown-submenu > .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        inset: auto !important;
+        top: auto !important;
+        left: auto !important;
+        display: none;
+        margin: 6px 0 0 12px !important;
+        width: calc(100% - 12px);
+        padding-bottom: 0;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .navbar-nav .dropdown-submenu > .dropdown-menu.show {
+        display: block;
+    }
+}
+
+/* Modern Messenger/Zalo Style Chat Interface */
+.freelancer-messages,
+.employer-messages {
+    --chat-primary: #0084ff;
+    --chat-bg: #ffffff;
+    --chat-gray: #f0f2f5;
+    --chat-text: #050505;
+    --chat-text-sec: #65676b;
+    --chat-hover: #f2f2f2;
+    --chat-active: #e7f3ff;
+    --chat-bubble-me: #0084ff;
+    --chat-bubble-other: #e4e6eb;
+}
+
+.freelancer-messages .card,
+.employer-messages .card {
+    border: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.freelancer-messages .chat-shell,
+.employer-messages .chat-shell {
+    height: calc(100vh - 180px);
+    min-height: 600px;
+    background: var(--chat-bg);
+    display: flex;
+}
+
+/* Sidebar - Zalo Style */
+.freelancer-messages .sidebar-col,
+.employer-messages .sidebar-col {
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+}
+
+.freelancer-messages .search-box,
+.employer-messages .search-box {
+    padding: 12px 16px;
+}
+
+.freelancer-messages .search-input-group,
+.employer-messages .search-input-group {
+    background: var(--chat-gray);
+    border-radius: 20px;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+}
+
+.freelancer-messages .search-input-group i,
+.employer-messages .search-input-group i {
+    color: var(--chat-text-sec);
+}
+
+.freelancer-messages .search-input-group input,
+.employer-messages .search-input-group input {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    font-size: 0.95rem;
+    padding: 6px 8px;
+}
+
+.freelancer-messages .search-input-group input:focus,
+.employer-messages .search-input-group input:focus {
+    outline: none;
+}
+
+.freelancer-messages .conv-list,
+.employer-messages .conv-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px;
+}
+
+.freelancer-messages .conv-item,
+.employer-messages .conv-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 2px;
+    text-decoration: none;
+    color: var(--chat-text);
+}
+
+.freelancer-messages .conv-item:hover,
+.employer-messages .conv-item:hover {
+    background-color: var(--chat-hover);
+}
+
+.freelancer-messages .conv-item.active,
+.employer-messages .conv-item.active {
+    background-color: var(--chat-active);
+}
+
+.freelancer-messages .conv-avatar-wrapper,
+.employer-messages .conv-avatar-wrapper {
+    position: relative;
+    margin-right: 12px;
+}
+
+.freelancer-messages .conv-avatar,
+.employer-messages .conv-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.freelancer-messages .online-status,
+.employer-messages .online-status {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background: #31a24c;
+    border: 2px solid #fff;
+    border-radius: 50%;
+}
+
+.freelancer-messages .conv-info,
+.employer-messages .conv-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.freelancer-messages .conv-top,
+.employer-messages .conv-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+}
+
+.freelancer-messages .conv-name,
+.employer-messages .conv-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--chat-text);
+}
+
+.freelancer-messages .conv-time,
+.employer-messages .conv-time {
+    font-size: 0.75rem;
+    color: var(--chat-text-sec);
+}
+
+.freelancer-messages .conv-preview,
+.employer-messages .conv-preview {
+    font-size: 0.85rem;
+    color: var(--chat-text-sec);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.freelancer-messages .conv-item.active .conv-preview,
+.employer-messages .conv-item.active .conv-preview {
+    color: var(--chat-primary);
+    font-weight: 500;
+}
+
+/* Chat Area - Facebook Style */
+.freelancer-messages .chat-col,
+.employer-messages .chat-col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+}
+
+.freelancer-messages .chat-header,
+.employer-messages .chat-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.freelancer-messages .chat-header-user,
+.employer-messages .chat-header-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.freelancer-messages .chat-header-avatar,
+.employer-messages .chat-header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.freelancer-messages .chat-header-info h5,
+.employer-messages .chat-header-info h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.freelancer-messages .chat-header-actions .btn-icon,
+.employer-messages .chat-header-actions .btn-icon {
+    color: var(--chat-primary);
+    font-size: 1.2rem;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.freelancer-messages .chat-header-actions .btn-icon:hover,
+.employer-messages .chat-header-actions .btn-icon:hover {
+    background: var(--chat-gray);
+}
+
+.freelancer-messages .chat-pane-body,
+.employer-messages .chat-pane-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.freelancer-messages .chat-msg,
+.employer-messages .chat-msg {
+    display: flex;
+    margin-bottom: 16px;
+    align-items: flex-end;
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.freelancer-messages .chat-msg.from-other,
+.employer-messages .chat-msg.from-other {
+    align-self: flex-start;
+    margin-right: auto;
+}
+
+.freelancer-messages .chat-msg.from-me,
+.employer-messages .chat-msg.from-me {
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.freelancer-messages .chat-msg.from-me,
+.employer-messages .chat-msg.from-me {
+    gap: 0;
+}
+
+.freelancer-messages .chat-msg.from-me .msg-avatar,
+.employer-messages .chat-msg.from-me .msg-avatar {
+    display: none;
+}
+
+.freelancer-messages .msg-avatar,
+.employer-messages .msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.freelancer-messages .bubble,
+.employer-messages .bubble {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.freelancer-messages .chat-msg.from-other .bubble,
+.employer-messages .chat-msg.from-other .bubble {
+    background-color: var(--chat-bubble-other);
+    color: var(--chat-text);
+    border-radius: 18px 18px 18px 4px;
+}
+
+.freelancer-messages .chat-msg.from-me .bubble,
+.employer-messages .chat-msg.from-me .bubble {
+    background-color: var(--chat-bubble-me);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+}
+
+.freelancer-messages .bubble .meta,
+.employer-messages .bubble .meta {
+    font-size: 0.65rem;
+    margin-top: 4px;
+    opacity: 0.7;
+    text-align: right;
+}
+
+.freelancer-messages .chat-msg.from-other .bubble .meta,
+.employer-messages .chat-msg.from-other .bubble .meta {
+    text-align: left;
+    color: var(--chat-text-sec);
+}
+
+/* Composer - Facebook Style */
+.freelancer-messages .composer-area,
+.employer-messages .composer-area {
+    padding: 12px 16px;
+    border-top: 1px solid #dee2e6;
+    background: #fff;
+}
+
+.freelancer-messages .composer-tools,
+.employer-messages .composer-tools {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.freelancer-messages .tool-btn,
+.employer-messages .tool-btn {
+    color: var(--chat-primary);
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.freelancer-messages .emoji-wrap,
+.employer-messages .emoji-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.freelancer-messages .emoji-panel,
+.employer-messages .emoji-panel {
+    position: absolute;
+    bottom: 44px;
+    right: 0;
+    width: min(360px, 82vw);
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 14px;
+    box-shadow: 0 18px 45px rgba(2, 6, 23, 0.18);
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+    gap: 4px;
+    z-index: 50;
+    max-height: 320px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.freelancer-messages .emoji-panel::-webkit-scrollbar,
+.employer-messages .emoji-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.freelancer-messages .emoji-panel::-webkit-scrollbar-track,
+.employer-messages .emoji-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.freelancer-messages .emoji-panel::-webkit-scrollbar-thumb,
+.employer-messages .emoji-panel::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.freelancer-messages .emoji-panel::-webkit-scrollbar-thumb:hover,
+.employer-messages .emoji-panel::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.freelancer-messages .emoji-item,
+.employer-messages .emoji-item {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    padding: 0;
+}
+
+.freelancer-messages .emoji-item:hover,
+.employer-messages .emoji-item:hover {
+    background: rgba(13, 110, 253, 0.08);
+}
+
+.freelancer-messages .emoji-item:active,
+.employer-messages .emoji-item:active {
+    background: rgba(13, 110, 253, 0.14);
+}
+
+.freelancer-messages .tool-btn:hover,
+.employer-messages .tool-btn:hover {
+    background: var(--chat-gray);
+}
+
+.freelancer-messages .input-wrapper,
+.employer-messages .input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    background: var(--chat-gray);
+    border-radius: 18px;
+    padding: 8px 12px;
+}
+
+.freelancer-messages .composer-input,
+.employer-messages .composer-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    resize: none;
+    max-height: 100px;
+    padding: 4px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.freelancer-messages .composer-input:focus,
+.employer-messages .composer-input:focus {
+    outline: none;
+}
+
+.freelancer-messages .send-btn,
+.employer-messages .send-btn {
+    color: var(--chat-primary);
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    padding: 0 4px;
+    transition: transform 0.1s;
+}
+
+.freelancer-messages .send-btn:hover,
+.employer-messages .send-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Scrollbar styling */
+.freelancer-messages .conv-list::-webkit-scrollbar,
+.employer-messages .conv-list::-webkit-scrollbar,
+.freelancer-messages .chat-pane-body::-webkit-scrollbar,
+.employer-messages .chat-pane-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.freelancer-messages .conv-list::-webkit-scrollbar-thumb,
+.employer-messages .conv-list::-webkit-scrollbar-thumb,
+.freelancer-messages .chat-pane-body::-webkit-scrollbar-thumb,
+.employer-messages .chat-pane-body::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+@media (max-width: 991.98px) {
+    .freelancer-messages .chat-shell,
+    .employer-messages .chat-shell {
+        height: auto;
+        flex-direction: column;
+    }
+    .freelancer-messages .sidebar-col,
+    .employer-messages .sidebar-col {
+        height: 300px;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .freelancer-messages .chat-col,
+    .employer-messages .chat-col {
+        height: 500px;
+    }
+}
+
+.employer-view-applicant .user-avatar {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    flex: 0 0 34px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.employer-view-applicant .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Ensure proper spacing on mobile */
+@media (max-width: 991.98px) {
+    .navbar-nav .nav-item.dropdown .btn {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 0.5rem;
+    }
+
+    .navbar-nav .nav-item.dropdown .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+    }
+
+    .navbar-nav .nav-item {
+        margin-bottom: 0.5rem;
+    }
+    
+    .navbar-nav .nav-item:not(.dropdown) .nav-link {
+        padding: 0.5rem 1rem;
+    }
+    
+    .navbar-nav .dropdown .btn {
+        padding: 0.5rem 1rem;
+    }
+}
+
+li.nav-item.dropdown {
+    margin-left: 5px;
+}
+
+.dropdown-menu .dropdown-item i {
+    width: 1.2rem;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Employer post job form tweaks */
+.employer-post-job .form-label-icon i {
+    width: 1.1rem;
+    display: inline-block;
+    text-align: center;
+    margin-right: 0.35rem;
+}
+
+.employer-post-job .form-label-icon {
+    letter-spacing: 0.04em;
+}
+
+.employer-post-job .vamper-textarea {
+    resize: vertical;
+}
+
+.employer-post-job .vamper-textarea:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.12);
+    border-color: rgba(13, 110, 253, 0.55);
+}
+
+.employer-post-job .vamper-quill-editor {
+    background: #fff;
+}
+
+.employer-post-job .vamper-quill-editor .ql-container {
+    min-height: 220px;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+.employer-post-job .vamper-quill-editor .ql-toolbar {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+.employer-company-profile .vamper-quill-editor {
+    background: #fff;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.employer-company-profile .vamper-quill-editor .ql-toolbar {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+.employer-company-profile .vamper-quill-editor .ql-container {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    height: 220px;
+    position: static;
+}
+
+.employer-company-profile .vamper-quill-editor .ql-editor {
+    height: 220px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.vamper-richtext p {
+    margin-bottom: 0.75rem;
+}
+
+.vamper-richtext ul,
+.vamper-richtext ol {
+    padding-left: 1.25rem;
+}
+
+/* Categories horizontal slider */
+.categories-slider {
+    position: relative;
+}
+
+.categories-track {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 0.25rem 0.25rem 0.75rem;
+}
+
+.categories-track::-webkit-scrollbar {
+    height: 8px;
+}
+
+.categories-track::-webkit-scrollbar-thumb {
+    background: rgba(13, 110, 253, 0.25);
+    border-radius: 999px;
+}
+
+.categories-track::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.category-slide {
+    flex: 0 0 260px;
+    scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+    .category-slide {
+        flex-basis: 280px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .category-slide {
+        flex-basis: 300px;
+    }
+}
+
+/* Employer company profile logo preview */
+#logo-preview-container {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+    min-height: 50px !important;
+    overflow: hidden !important;
+}
+
+#logo-preview-container img {
+    display: block;
+    width: 50px !important;
+    height: 50px !important;
+    max-width: 50px !important;
+    max-height: 50px !important;
+    object-fit: cover !important;
+}
+
+#company-description-editor {
+  height: 170px;
+}
+
+/* Fix for large images and videos in chat bubbles */
+.freelancer-messages .bubble img,
+.freelancer-messages .bubble video,
+.employer-messages .bubble img,
+.employer-messages .bubble video {
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: 12px;
+    display: block;
+}
+
+/* Reply functionality */
+.reply-btn {
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: none;
+    border: none;
+    color: #6c757d;
+    padding: 0 5px;
+    font-size: 14px;
+}
+
+.chat-msg:hover .reply-btn {
+    opacity: 1;
+}
+
+.reply-preview-area {
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 8px 12px;
+    display: none; /* hidden by default */
+    align-items: center;
+    justify-content: space-between;
+}
+
+.reply-preview-area.active {
+    display: flex;
+}
+
+.reply-preview-content {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #495057;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 8px;
+    border-left: 3px solid #0d6efd;
+}
+
+.reply-close-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 1.2rem;
+    padding: 0 8px;
+}
+
+.replied-msg {
+    background: rgba(0, 0, 0, 0.05);
+    border-left: 3px solid rgba(0, 0, 0, 0.2);
+    padding: 4px 8px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: inherit;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-msg.from-me .replied-msg {
+    background: rgba(255, 255, 255, 0.2);
+    border-left-color: rgba(255, 255, 255, 0.5);
+}

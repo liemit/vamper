@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayPal Settings - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .admin-page main {
+            background: linear-gradient(180deg, #f6f8fc 0%, #f0f7ff 100%);
+        }
+        .admin-sidebar {
+            background-color: #ffffff !important;
+        }
+    </style>
+</head>
+<body class="admin-page bg-light">
+    <%- include('../../public/header') %>
+    
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row g-0">
+            <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0">
+                <%- include('layouts/menu') %>
+            </aside>
+
+            <section class="col-12 col-md-9 col-lg-10 ps-md-0">
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                        <li class="breadcrumb-item active">PayPal Settings</li>
+                    </ol>
+                </nav>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary-subtle text-primary rounded-circle p-3 me-3">
+                                <i class="bi bi-paypal fs-4"></i>
+                            </div>
+                            <h4 class="fw-bold mb-0">PayPal Configuration</h4>
+                        </div>
+
+                        <% if (success_msg && success_msg.length > 0) { %>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i><%= success_msg %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <% } %>
+                        <% if (error_msg && error_msg.length > 0) { %>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i><%= error_msg %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <% } %>
+
+                        <form action="/admin/paypal-settings/update" method="POST">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Environment Mode</label>
+                                <select name="paypal_mode" class="form-select">
+                                    <option value="sandbox" <%= paypalMode === 'sandbox' ? 'selected' : '' %>>Sandbox (Testing)</option>
+                                    <option value="live" <%= paypalMode === 'live' ? 'selected' : '' %>>Live (Production)</option>
+                                </select>
+                                <div class="form-text text-muted">Switch between testing and real payment mode.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">PayPal Client ID</label>
+                                <input type="text" name="paypal_client_id" class="form-control font-monospace" value="<%= paypalClientId %>" required>
+                                <div class="form-text">Obtained from PayPal Developer Dashboard.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">PayPal Client Secret</label>
+                                <div class="input-group">
+                                    <input type="password" name="paypal_client_secret" id="paypalSecret" class="form-control font-monospace" value="<%= paypalClientSecret %>" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="toggleSecret()">
+                                        <i class="bi bi-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Keep this secret secure.</div>
+                            </div>
+
+                            <div class="alert alert-warning border-0 bg-warning-subtle mb-4">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <strong>Warning:</strong> Updating these settings will modify your <code>.env</code> file directly. 
+                                The changes will take effect immediately for new transactions.
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary px-4 fw-bold py-2">
+                                    <i class="bi bi-save me-2"></i>Save Configuration
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSecret() {
+            const input = document.getElementById('paypalSecret');
+            const icon = document.getElementById('toggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+    </script>
+</body>
+</html>

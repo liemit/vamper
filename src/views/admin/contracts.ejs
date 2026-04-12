@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contracts - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>.admin-page main{background:linear-gradient(180deg,#f6f8fc 0%,#f0f7ff 100%)}.admin-sidebar{background-color:#fff!important}</style>
+</head>
+<body class="admin-page bg-light">
+    <%- include('../../public/header') %>
+    <main class="container-fluid py-3 py-md-4">
+        <div class="row g-0">
+            <aside class="col-12 col-md-3 col-lg-2 pe-md-3 mb-3 mb-md-0"><%- include('layouts/menu') %></aside>
+            <section class="col-12 col-md-9 col-lg-10 ps-md-0">
+                <div class="d-flex align-items-center justify-content-between pt-2 pb-3 mb-3 border-bottom">
+                    <h4 class="fw-bold mb-0">Contracts</h4>
+                    <span class="text-muted small">Total: <%= pagination.total %></span>
+                </div>
+
+                <!-- Filter -->
+                <div class="card border-0 shadow-sm rounded-4 mb-3">
+                    <div class="card-body py-2 px-3">
+                        <form method="GET" action="/admin/contracts" class="d-flex gap-2 flex-wrap align-items-end">
+                            <div>
+                                <label class="form-label small mb-1">Status</label>
+                                <select name="status" class="form-select form-select-sm" style="width:140px;">
+                                    <option value="">All</option>
+                                    <% ['active','completed','terminated','disputed'].forEach(s => { %>
+                                        <option value="<%= s %>" <%= query.status === s ? 'selected' : '' %>><%= s %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                            <a href="/admin/contracts" class="btn btn-sm btn-outline-secondary">Reset</a>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">ID</th>
+                                        <th>Job</th>
+                                        <th>Freelancer</th>
+                                        <th>Employer</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th class="pe-4">Start Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (!contracts.length) { %><tr><td colspan="7" class="text-center text-muted py-4">No contracts found.</td></tr><% } %>
+                                    <% contracts.forEach(c => { %>
+                                    <%
+                                        const sc = {active:'success',completed:'primary',terminated:'danger',disputed:'warning'}[c.status] || 'secondary';
+                                    %>
+                                    <tr>
+                                        <td class="ps-4 text-muted small">#<%= c.id %></td>
+                                        <td style="max-width:180px;"><div class="text-truncate small fw-semibold"><%= c.job_title || '#'+c.job_id %></div></td>
+                                        <td class="small"><%= c.freelancer_name || '#'+c.freelancer_id %></td>
+                                        <td class="small"><%= c.employer_name || c.company_name || '#'+c.employer_id %></td>
+                                        <td class="small"><i class="bi bi-gem text-primary"></i> <%= c.agreed_amount ? Number(c.agreed_amount).toLocaleString() : '—' %></td>
+                                        <td><span class="badge bg-<%= sc %>-subtle text-<%= sc %>"><%= c.status %></span></td>
+                                        <td class="pe-4 text-muted small"><%= c.start_date ? new Date(c.start_date).toLocaleDateString() : '' %></td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <% if (pagination.totalPages > 1) { %>
+                        <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top">
+                            <div class="text-muted small">Page <%= pagination.page %> of <%= pagination.totalPages %></div>
+                            <nav><ul class="pagination pagination-sm mb-0">
+                                <li class="page-item <%= pagination.page<=1?'disabled':'' %>"><a class="page-link" href="?status=<%= query.status %>&page=<%= pagination.page-1 %>">Prev</a></li>
+                                <% for(let i=1;i<=pagination.totalPages;i++){%><li class="page-item <%=i===pagination.page?'active':''%>"><a class="page-link" href="?status=<%= query.status %>&page=<%= i %>"><%= i %></a></li><%}%>
+                                <li class="page-item <%= pagination.page>=pagination.totalPages?'disabled':'' %>"><a class="page-link" href="?status=<%= query.status %>&page=<%= pagination.page+1 %>">Next</a></li>
+                            </ul></nav>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <%- include('../../public/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
