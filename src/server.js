@@ -56,36 +56,14 @@ const app = express();
 
 
 // Middleware
+app.use(
+helmet({
+contentSecurityPolicy: false,
+})
+);
 
-app.use(helmet({
 
-  contentSecurityPolicy: {
 
-    directives: {
-
-      defaultSrc: ["'self'"],
-
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "cdn.jsdelivr.net", "code.jquery.com", "js.hcaptcha.com", "*.hcaptcha.com", "*.highperformanceformat.com", "*.adterra.com", "*.adterra.network"],
-
-      styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com", "*.hcaptcha.com"],
-
-      fontSrc: ["'self'", "cdn.jsdelivr.net", "fonts.gstatic.com"],
-
-      imgSrc: ["'self'", "data:", "blob:", "*"],
-
-      connectSrc: ["'self'", "*"], // Allow fetch/XHR to any origin
-
-      frameSrc: ["*.hcaptcha.com", "*.highperformanceformat.com", "*.adterra.com", "*.adterra.network"],
-
-      objectSrc: ["'none'"],
-
-      upgradeInsecureRequests: [],
-
-    },
-
-  },
-
-})); // Add Security Headers
 
 app.use(express.json({ limit: '10gb' }));
 
