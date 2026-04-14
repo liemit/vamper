@@ -1273,7 +1273,22 @@ exports.messagesPage = async (req, res) => {
             jobId: Number.isFinite(jobId) ? jobId : null,
             proposalId,
             proposalRate,
-            isDeposited
+            isDeposited,
+            uploadLimits: await (async () => {
+                try {
+                    const [planRows] = await db.query(
+                        `SELECT pl.kind, pl.max_file_mb FROM user_plans up
+                         JOIN plan_limits pl ON pl.plan_id = up.plan_id
+                         WHERE up.user_id = ? AND up.end_utc > NOW() AND pl.is_active = 1`,
+                        [req.session.user.id]
+                    );
+                    const limits = { image: 10, video: 500, file: 1000 };
+                    (Array.isArray(planRows) ? planRows : []).forEach(r => {
+                        if (r.kind && r.max_file_mb) limits[r.kind] = Number(r.max_file_mb);
+                    });
+                    return limits;
+                } catch(_) { return { image: 10, video: 500, file: 1000 }; }
+            })()
         });
     } catch (error) {
         console.error(error);

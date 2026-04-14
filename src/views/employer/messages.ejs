@@ -728,12 +728,8 @@
         function uploadFile(file) {
             const isImage = file && file.type && file.type.startsWith('image/');
             const isVideo = file && file.type && file.type.startsWith('video/');
-            const maxImageMB = 10;
-            const maxVideoMB = 200;
-            const maxFileMB = 200;
-            let limitMB = maxFileMB;
-            if (isImage) limitMB = maxImageMB;
-            else if (isVideo) limitMB = maxVideoMB;
+            const limits = <%- JSON.stringify(uploadLimits || {image:10,video:500,file:1000}) %>;
+            let limitMB = isImage ? limits.image : (isVideo ? limits.video : limits.file);
             const limitBytes = limitMB * 1024 * 1024;
             if (file && file.size && file.size > limitBytes) {
                 openPlanModal(isImage ? 'image' : (isVideo ? 'video' : 'file'));
