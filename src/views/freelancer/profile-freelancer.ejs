@@ -316,6 +316,21 @@
                                                                                 %>/<%= ps.currency ? 'month · ' +
                                                                                     ps.currency : 'month' %></span>
                                                                     </div>
+                                                                    <% if (ps.code && ps.price_monthly > 0) { %>
+                                                                    <div class="mb-3 d-flex align-items-center gap-2">
+                                                                        <div class="form-check form-switch mb-0">
+                                                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                                                id="autoRenewToggleFreelancer"
+                                                                                <%= ps.auto_renew ? 'checked' : '' %>>
+                                                                            <label class="form-check-label fw-semibold" for="autoRenewToggleFreelancer">
+                                                                                Auto-renew
+                                                                            </label>
+                                                                        </div>
+                                                                        <span class="text-muted small" id="autoRenewStatusFreelancer">
+                                                                            <%= ps.auto_renew ? 'Enabled — plan will renew automatically when expired or quota is full' : 'Disabled — you will need to renew manually' %>
+                                                                        </span>
+                                                                    </div>
+                                                                    <% } %>
                                                                     <div class="row g-3">
                                                                         <div class="col-12 col-md-6">
                                                                             <div class="card border-0 shadow-sm h-100">
@@ -708,6 +723,38 @@
                         } catch (_) { }
                     }
                     loadPlans();
+                })();
+
+                // Auto-renew toggle — freelancer
+                (function() {
+                    const toggle = document.getElementById('autoRenewToggleFreelancer');
+                    const statusEl = document.getElementById('autoRenewStatusFreelancer');
+                    if (!toggle) return;
+                    toggle.addEventListener('change', async function() {
+                        const val = toggle.checked ? 1 : 0;
+                        const csrf = document.querySelector('input[name="_csrf"]');
+                        const params = new URLSearchParams();
+                        params.set('auto_renew', val);
+                        if (csrf) params.set('_csrf', csrf.value);
+                        try {
+                            const r = await fetch('/freelancer/plans/toggle-auto-renew', {
+                                method: 'POST',
+                                headers: Object.assign({'Content-Type': 'application/x-www-form-urlencoded'}, csrf ? {'CSRF-Token': csrf.value, 'X-CSRF-Token': csrf.value} : {}),
+                                body: params.toString(),
+                                credentials: 'same-origin'
+                            });
+                            const j = await r.json();
+                            if (j && j.ok) {
+                                if (statusEl) statusEl.textContent = val ? 'Enabled — plan will renew automatically when expired or quota is full' : 'Disabled — you will need to renew manually';
+                            } else {
+                                toggle.checked = !toggle.checked;
+                                alert((j && j.error) ? j.error : 'Failed to update auto-renew');
+                            }
+                        } catch(_) {
+                            toggle.checked = !toggle.checked;
+                            alert('Network error');
+                        }
+                    });
                 })();
 
                 // Combined Profile and Change Password AJAX submission

@@ -12,6 +12,7 @@ require("dotenv").config();
 
 // Initialize DB connection
 const db = require("./config/db");
+const NotificationService = require("./services/notificationService");
 
 // Ensure required tables exist
 (async () => {
@@ -707,6 +708,140 @@ app.use('/', routes);
 
 
 const port = process.env.PORT || 3000;
+
+// ─── Auto-renew cron job ───────────────────────────────────────────────────
+// Runs every hour. Renews plans that have auto_renew=1 and are either:
+//   1. Expired (end_utc < NOW())
+//   2. Quota full for current month (all 3 types exceeded their monthly limit)
+const pad = (n) => String(n).padStart(2, '0');
+
+async function runAutoRenew() {
+    const results = { renewed: [], skipped: [], errors: [] };
+    try {
+        const now = new Date();
+        const pk = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}`;
+
+        const [candidates] = await db.query(
+            `SELECT up.id AS up_id, up.user_id, up.plan_id,
+                    p.code AS plan_code, p.price_monthly, p.currency,
+                    up.end_utc
+             FROM user_plans up
+             JOIN plans p ON p.id = up.plan_id
+             WHERE up.status = 'active' AND up.auto_renew = 1
+               AND p.is_active = 1
+               AND p.price_monthly > 0
+               AND (
+                 up.end_utc < UTC_TIMESTAMP()
+                 OR up.user_id IN (
+                   SELECT uu.user_id FROM upload_usage uu
+                   JOIN plan_limits pl_img ON pl_img.plan_id = up.plan_id AND pl_img.kind = 'image' AND pl_img.is_active = 1
+                   JOIN plan_limits pl_vid ON pl_vid.plan_id = up.plan_id AND pl_vid.kind = 'video' AND pl_vid.is_active = 1
+                   JOIN plan_limits pl_fil ON pl_fil.plan_id = up.plan_id AND pl_fil.kind = 'file'  AND pl_fil.is_active = 1
+                   WHERE uu.user_id = up.user_id AND uu.period_key = ?
+                     AND uu.image_bytes >= (pl_img.monthly_quota_mb * 1024 * 1024)
+                     AND uu.video_bytes >= (pl_vid.monthly_quota_mb * 1024 * 1024)
+                     AND uu.file_bytes  >= (pl_fil.monthly_quota_mb * 1024 * 1024)
+                 )
+               )`,
+            [pk]
+        );
+
+        if (!Array.isArray(candidates) || !candidates.length) {
+            console.log('[AutoRenew] No candidates found.');
+            return results;
+        }
+
+        for (const row of candidates) {
+            try {
+                const price = Number(row.price_monthly || 0);
+                const userId = row.user_id;
+                const planId = row.plan_id;
+                const planCode = row.plan_code;
+
+                if (price > 0) {
+                    const [upd] = await db.execute(
+                        `UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?`,
+                        [price, userId, price]
+                    );
+                    if (!upd || !upd.affectedRows) {
+                        await db.execute(
+                            `UPDATE user_plans SET auto_renew = 0 WHERE id = ?`,
+                            [row.up_id]
+                        );
+                        console.log(`[AutoRenew] User ${userId}: insufficient balance, auto_renew disabled.`);
+                        results.skipped.push({ userId, planCode, reason: 'Insufficient balance' });
+
+                        // Notify user: insufficient balance
+                        await NotificationService.createPersonal(
+                            userId,
+                            '⚠️ Auto-renew failed — Insufficient balance',
+                            `Your ${planCode} plan could not be renewed automatically because your balance is insufficient.\n\nPlan: ${planCode}\nPrice: ${price} USD\n\nPlease top up your balance and reactivate your plan manually to continue enjoying uninterrupted service.`,
+                            'billing',
+                            '/freelancer/profile#pane-plan',
+                            'warning'
+                        );
+
+                        continue;
+                    }
+                    await db.execute(
+                        `INSERT INTO transactions (user_id, amount, type, status, description, related_contract_id)
+                         VALUES (?, ?, 'service_fee', 'completed', ?, NULL)`,
+                        [userId, price, `Auto-renew: ${planCode}`]
+                    );
+                }
+
+                const y = now.getUTCFullYear();
+                const m = now.getUTCMonth();
+                const next = new Date(Date.UTC(y, m + 1, 1, 0, 0, 0));
+                const end = new Date(next.getTime() - 1000);
+                const endStr = `${end.getUTCFullYear()}-${pad(end.getUTCMonth() + 1)}-${pad(end.getUTCDate())} ${pad(end.getUTCHours())}:${pad(end.getUTCMinutes())}:${pad(end.getUTCSeconds())}`;
+
+                await db.query(
+                    `UPDATE user_plans SET status = 'canceled' WHERE user_id = ? AND status = 'active'`,
+                    [userId]
+                );
+                await db.query(
+                    `INSERT INTO user_plans (user_id, plan_id, status, start_utc, end_utc, auto_renew)
+                     VALUES (?, ?, 'active', UTC_TIMESTAMP(), ?, 1)`,
+                    [userId, planId, endStr]
+                );
+                await db.query(
+                    `DELETE FROM upload_usage WHERE user_id = ? AND period_key = ?`,
+                    [userId, pk]
+                );
+
+                console.log(`[AutoRenew] User ${userId} renewed plan "${planCode}" until ${endStr}`);
+                results.renewed.push({ userId, planCode, newEndUtc: endStr, charged: price });
+
+                // Notify user: renewal successful
+                const chargedText = price > 0 ? `\n💳 Amount charged: ${price} USD` : '';
+                await NotificationService.createPersonal(
+                    userId,
+                    `✅ Your ${planCode} plan has been renewed`,
+                    `Your subscription has been automatically renewed successfully.\n\n📦 Plan: ${planCode.charAt(0).toUpperCase() + planCode.slice(1)}${chargedText}\n📅 Valid until: ${endStr} (UTC)\n🔄 Auto-renew: Enabled\n\nYour upload quota has been reset for the new period. You can continue uploading files without interruption.\n\nThank you for using Vamper!`,
+                    'billing',
+                    '/freelancer/profile#pane-plan',
+                    'success'
+                );
+            } catch (innerErr) {
+                console.error(`[AutoRenew] Error renewing user ${row.user_id}:`, innerErr.message);
+                results.errors.push({ userId: row.user_id, error: innerErr.message });
+            }
+        }
+    } catch (err) {
+        console.error('[AutoRenew] Job error:', err.message);
+        results.errors.push({ error: err.message });
+    }
+    return results;
+}
+
+// Export for use in admin controller
+module.exports.runAutoRenew = runAutoRenew;
+
+// Run once on startup, then every hour
+runAutoRenew();
+setInterval(runAutoRenew, 60 * 60 * 1000);
+// ──────────────────────────────────────────────────────────────────────────────
 
 app.listen(port, () => {
   const c = {

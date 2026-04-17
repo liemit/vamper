@@ -237,6 +237,7 @@ router.get('/messages/timer/status', employerController.getTimerStatus);
 
 router.get('/plans', employerController.listPlans);
 router.post('/plans/activate', employerController.activatePlan);
+router.post('/plans/toggle-auto-renew', employerController.toggleAutoRenew);
 
 
 

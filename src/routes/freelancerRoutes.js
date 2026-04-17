@@ -217,6 +217,7 @@ router.post('/messages/delete-msg/:id', freelancerController.deleteMessage);
 
 router.get('/plans', freelancerController.listPlans);
 router.post('/plans/activate', freelancerController.activatePlan);
+router.post('/plans/toggle-auto-renew', freelancerController.toggleAutoRenew);
 router.get('/proposals', freelancerController.myProposals);
 
 router.post('/proposals/:id/withdraw', freelancerController.withdrawProposal);

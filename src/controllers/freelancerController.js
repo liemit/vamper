@@ -127,20 +127,39 @@ exports.listPlans = async (req, res) => {
              ORDER BY p.id ASC`
         );
         let activeCode = null;
+        let autoRenew = 1;
         try {
             const [arows] = await db.query(
-                `SELECT p.code 
-                 FROM user_plans up 
-                 JOIN plans p ON p.id = up.plan_id 
-                 WHERE up.user_id = ? AND up.status = 'active' 
+                `SELECT p.code, up.auto_renew
+                 FROM user_plans up
+                 JOIN plans p ON p.id = up.plan_id
+                 WHERE up.user_id = ? AND up.status = 'active'
                  LIMIT 1`,
                 [req.session.user.id]
             );
-            activeCode = (Array.isArray(arows) && arows.length) ? arows[0].code : null;
+            if (Array.isArray(arows) && arows.length) {
+                activeCode = arows[0].code;
+                autoRenew = arows[0].auto_renew;
+            }
         } catch (_) {}
-        return res.json({ ok: true, items: Array.isArray(rows) ? rows : [], active_plan_code: activeCode });
+        return res.json({ ok: true, items: Array.isArray(rows) ? rows : [], active_plan_code: activeCode, auto_renew: autoRenew });
     } catch (e) {
         return res.status(500).json({ ok: false, items: [] });
+    }
+};
+
+exports.toggleAutoRenew = async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const val = req.body && req.body.auto_renew !== undefined ? Number(req.body.auto_renew) : null;
+        if (val !== 0 && val !== 1) return res.status(400).json({ ok: false, error: 'Invalid value' });
+        const [upd] = await db.execute(
+            `UPDATE user_plans SET auto_renew = ? WHERE user_id = ? AND status = 'active'`,
+            [val, userId]
+        );
+        return res.json({ ok: true, auto_renew: val });
+    } catch (e) {
+        return res.status(500).json({ ok: false, error: 'Server Error' });
     }
 };
 
@@ -185,9 +204,19 @@ exports.activatePlan = async (req, res) => {
         );
         await db.query(
             `INSERT INTO user_plans (user_id, plan_id, status, start_utc, end_utc, auto_renew)
-             VALUES (?, ?, 'active', UTC_TIMESTAMP(), ?, 1)`,
-            [userId, plan.id, endStr]
+             VALUES (?, ?, 'active', UTC_TIMESTAMP(), ?, ?)`,
+            [userId, plan.id, endStr, price > 0 ? 1 : 0]
         );
+
+        // Reset upload usage for current month only when switching to a paid plan
+        if (price > 0) {
+            const pk = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}`;
+            await db.query(
+                `DELETE FROM upload_usage WHERE user_id = ? AND period_key = ?`,
+                [userId, pk]
+            );
+        }
+
         let newBalance = null;
         try {
             const [b] = await db.query(`SELECT balance FROM users WHERE id = ? LIMIT 1`, [userId]);
@@ -449,7 +478,11 @@ exports.uploadAttachment = async (req, res) => {
                         const p = path.join(__dirname, '../public/img', req.file.filename);
                         if (fs.existsSync(p)) fs.unlinkSync(p);
                     } catch (_) {}
-                    return res.status(400).json({ ok: false, error: 'Monthly quota exceeded' });
+                    const usedMB = Math.round(curSafe / 1024 / 1024);
+                    const limitMB = Math.round(monthlyQuotaBytes / 1024 / 1024);
+                    const remainMB = Math.max(0, limitMB - usedMB);
+                    const fileMB = Math.round(size / 1024 / 1024 * 10) / 10;
+                    return res.status(400).json({ ok: false, error: `Monthly quota exceeded. Used: ${usedMB}MB / ${limitMB}MB (${remainMB}MB remaining, file is ${fileMB}MB). Upgrade your plan to continue.` });
                 }
             } catch (_) {}
         }
@@ -1315,13 +1348,13 @@ exports.profile = async (req, res) => {
 
 
 
-        let planStatus = { code: null, name: null, price_monthly: null, currency: null, start_utc: null, end_utc: null, limits: {}, usage: {} };
+        let planStatus = { code: null, name: null, price_monthly: null, currency: null, start_utc: null, end_utc: null, limits: {}, usage: {}, auto_renew: 1 };
 
         try {
 
             const [ap] = await db.query(
 
-                `SELECT p.id AS plan_id, p.code, p.name, p.price_monthly, p.currency, up.start_utc, up.end_utc
+                `SELECT p.id AS plan_id, p.code, p.name, p.price_monthly, p.currency, up.start_utc, up.end_utc, up.auto_renew
                  FROM user_plans up
                  JOIN plans p ON p.id = up.plan_id
                  WHERE up.user_id = ? AND up.status = 'active'
@@ -1335,7 +1368,7 @@ exports.profile = async (req, res) => {
             let p = Array.isArray(ap) && ap.length ? ap[0] : null;
             if (!p) {
                 const [ap2] = await db.query(
-                    `SELECT p.id AS plan_id, p.code, p.name, p.price_monthly, p.currency, up.start_utc, up.end_utc
+                    `SELECT p.id AS plan_id, p.code, p.name, p.price_monthly, p.currency, up.start_utc, up.end_utc, up.auto_renew
                      FROM user_plans up
                      JOIN plans p ON p.id = up.plan_id
                      WHERE up.user_id = ?
@@ -1352,6 +1385,7 @@ exports.profile = async (req, res) => {
                 planStatus.currency = p.currency || null;
                 planStatus.start_utc = p.start_utc || null;
                 planStatus.end_utc = p.end_utc || null;
+                planStatus.auto_renew = p.auto_renew !== undefined ? Number(p.auto_renew) : 1;
                 const [lims] = await db.query(
                     `SELECT kind, max_file_mb, monthly_quota_mb
                      FROM plan_limits

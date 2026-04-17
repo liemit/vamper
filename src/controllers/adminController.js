@@ -3011,3 +3011,21 @@ exports.applyBoostViews = async (req, res) => {
     }
     res.redirect('/admin/boost-views');
 };
+
+exports.runAutoRenewNow = async (req, res) => {
+    try {
+        // Dynamically require to avoid circular dependency
+        const { runAutoRenew } = require('../server');
+        const results = await runAutoRenew();
+        return res.json({
+            ok: true,
+            renewed: results.renewed,
+            skipped: results.skipped,
+            errors: results.errors,
+            summary: `Renewed: ${results.renewed.length}, Skipped: ${results.skipped.length}, Errors: ${results.errors.length}`
+        });
+    } catch (err) {
+        console.error('[Admin] runAutoRenewNow error:', err.message);
+        return res.status(500).json({ ok: false, error: err.message });
+    }
+};

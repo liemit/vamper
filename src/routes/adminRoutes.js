@@ -121,4 +121,7 @@ router.post('/categories/store', adminController.storeCategory);
 router.post('/categories/:id/update', adminController.updateCategory);
 router.post('/categories/:id/delete', adminController.deleteCategory);
 
+// Test endpoint: manually trigger auto-renew job
+router.post('/run-auto-renew', adminController.runAutoRenewNow);
+
 module.exports = router;

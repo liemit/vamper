@@ -807,7 +807,17 @@
                         resetUpload();
                     }
                 } else {
-                    alert('Upload failed with status ' + xhr.status);
+                    try {
+                        const errRes = JSON.parse(xhr.responseText);
+                        const errMsg = (errRes && errRes.error) ? String(errRes.error) : '';
+                        if (errMsg && (errMsg.includes('limit') || errMsg.includes('quota') || errMsg.includes('large'))) {
+                            openPlanModal(isImage ? 'image' : (isVideo ? 'video' : 'file'));
+                        } else {
+                            alert('Upload failed: ' + (errMsg || 'Status ' + xhr.status));
+                        }
+                    } catch (e) {
+                        alert('Upload failed with status ' + xhr.status);
+                    }
                     resetUpload();
                 }
             };
